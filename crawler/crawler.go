@@ -14,9 +14,5 @@ func main() {
 		fmt.Println(e.Text)
 	})
 
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
-
 	c.Visit("http://go-colly.org/")
 }
