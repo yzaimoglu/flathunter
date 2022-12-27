@@ -27,6 +27,7 @@ https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.giti
 
 # Go workspace file
 go.work
+go.work.sum
 
 ### Linux ###
 *~
