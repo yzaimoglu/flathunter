@@ -1,4 +1,4 @@
-module github.com/yzaimoglu/flathunter
+module github.com/yzaimoglu/flathunter/crawler
 
 go 1.19
 
