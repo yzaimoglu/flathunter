@@ -16,6 +16,8 @@ https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.giti
 *.so
 *.dylib
 
+cache
+
 # Test binary, built with `go test -c`
 *.test
 
