@@ -87,7 +87,7 @@ func main() {
   })
 
   // Visiting and waiting
-  c.Visit("https://www.ebay-kleinanzeigen.de/s-koeln/mietwohnung/k0l945")
+  c.Visit("https://www.ebay-kleinanzeigen.de/s-wandsbek/wohnung/k0l9446")
   c.Wait()
 
   // Waiting for the jobs to be complete
