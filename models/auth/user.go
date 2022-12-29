@@ -30,3 +30,11 @@ type UserInformation struct {
   TOTP string `json:"totp"`
   Role int64 `json:"role"`
 }
+
+// UserRegistration is the required information when creating a User.
+// This data structure is later on used for the User struct.
+type UserRegistration struct {
+  Email string `json:"email"`
+  Password string `json:"password"`
+  RepeatedPassword string `json:"repeated_password"`
+}

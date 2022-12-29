@@ -2,7 +2,7 @@ package models
 
 type Listing struct {
   ID int64 `json:"id"`
-  PlatformID int64 `json:"platform_id"`
+  URLID int64 `json:"url_id"`
   URL string `json:"url"`
   Images []string `json:"images"`
   Price string `json:"price"`
@@ -20,4 +20,12 @@ type Listing struct {
   OnlineTour string `json:"online_tour"`
   HeatingCosts string `json:"heating_costs"`
   Availability string `json:"availability"`
+  CrawledAt int64 `json:"crawled_at"`
+}
+
+type UserListing struct {
+  ID int64 `json:"id"`
+  UserID int64 `json:"user_id"`
+  ListingID int64 `json:"listing_id"`
+  Notified bool `json:"notified"`
 }
