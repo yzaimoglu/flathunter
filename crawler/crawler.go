@@ -6,7 +6,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/yzaimoglu/flathunter/crawler/utilities"
-	"github.com/yzaimoglu/flathunter/models/crawler"
+	models "github.com/yzaimoglu/flathunter/models/crawler"
 )
 
 func main() {
@@ -18,8 +18,8 @@ func main() {
 		&models.UserAgent{ID: 4, UserAgent: "Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_6_5 rv:6.0; sl-SI) AppleWebKit/531.49.6 (KHTML, like Gecko) Version/5.0.1 Safari/531.49.6"},
 	)
 
-  // round_robin_proxy, _ := utilities.NewProxy(
-  // )
+	// round_robin_proxy, _ := utilities.NewProxy(
+	// )
 
 	// Initializing the listings slice and the colly collector
 	var listings []models.Listing = []models.Listing{}
@@ -33,8 +33,8 @@ func main() {
 	c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4})
 	c.SetRequestTimeout(120 * time.Second)
 
-  // Setting proxy
-  //c.SetProxy(utilities.ProxyString(round_robin_proxy.Next()))
+	// Setting proxy
+	//c.SetProxy(utilities.ProxyString(round_robin_proxy.Next()))
 
 	// Cloning the colly collector for the detailCollector
 	detailCollector := c.Clone()
@@ -42,10 +42,10 @@ func main() {
 	// Setting the alternating User Agent
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("User-Agent", round_robin_ua.Next().UserAgent)
-  })
+	})
 	detailCollector.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("User-Agent", round_robin_ua.Next().UserAgent)
-  })
+	})
 
 	// Visiting the listings specific urls to scrape
 	c.OnHTML("article.aditem", func(e *colly.HTMLElement) {
@@ -94,7 +94,7 @@ func main() {
 
 	// Visiting and waiting
 	c.Visit("https://www.ebay-kleinanzeigen.de/s-wandsbek/wohnung/k0l9446")
-  c.Wait()
+	c.Wait()
 
 	// Waiting for the jobs to be complete
 	time.Sleep(5 * time.Second)

@@ -7,15 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yzaimoglu/flathunter/backend/config"
 	"github.com/yzaimoglu/flathunter/backend/middleware"
-	"github.com/yzaimoglu/flathunter/backend/routes/user"
-	"github.com/yzaimoglu/flathunter/models/auth"
+	routes "github.com/yzaimoglu/flathunter/backend/routes/user"
+	models "github.com/yzaimoglu/flathunter/models/auth"
 )
 
 func main() {
-  // Setup the Database and create the tables
+	// Setup the Database and create the tables
 	db := config.SetupDB()
 	db.AutoMigrate(&models.User{})
-  db.AutoMigrate(&models.Role{})
+	db.AutoMigrate(&models.Role{})
 
 	// Initialize the main router
 	gin.SetMode(gin.ReleaseMode)

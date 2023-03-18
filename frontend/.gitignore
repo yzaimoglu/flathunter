@@ -1,10 +1,9 @@
-.DS_Store
 node_modules
-/build
-/.svelte-kit
-/package
+*.log*
+.nuxt
+.nitro
+.cache
+.output
 .env
-.env.*
-!.env.example
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
+dist
+.DS_Store
