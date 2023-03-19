@@ -1,5 +1,5 @@
 <template>
     <div>
-        <Error404 />
+        <LoadingSpinner />
     </div>
 </template>
