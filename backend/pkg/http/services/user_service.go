@@ -1,51 +1,84 @@
 package services
 
 import (
+	"github.com/arangodb/go-driver"
 	"github.com/gookit/slog"
-	"github.com/yzaimoglu/flathunter/config"
+	"github.com/yzaimoglu/flathunter/pkg/config"
 	"github.com/yzaimoglu/flathunter/pkg/models"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// GetUser retrieves a user from the database.
+func GetUsers() ([]models.User, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var users []models.User
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR u IN users FOR r in roles FILTER u.role == r._key RETURN merge(u, {role: r})",
+		map[string]interface{}{})
+	if err != nil {
+		slog.Error(err)
+		return []models.User{}, config.ErrUserNotFound
+	}
+	defer result.Close()
+
+	for {
+		var user models.User
+		_, err := result.ReadDocument(arango.Ctx, &user)
+		if driver.IsNoMoreDocuments(err) {
+			break
+		} else if err != nil {
+			slog.Errorf("Failed to read document: %v", err)
+			return []models.User{}, config.ErrUserNotFound
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+// GetUser retrieves a user from the database.
 func GetUser(id string) (models.User, error) {
-	mongo := config.NewMongoClient()
-	defer mongo.Close()
+	arango := config.NewArangoClient()
+	defer arango.Close()
 
 	var user models.User
-	var objId primitive.ObjectID
 
-	objId, err := primitive.ObjectIDFromHex(id)
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR u IN users FILTER u._key == @id FOR r in roles FILTER u.role == r._key RETURN merge(u, {role: r})",
+		map[string]interface{}{"id": id})
 	if err != nil {
 		slog.Error(err)
 		return models.User{}, config.ErrUserNotFound
 	}
+	defer result.Close()
 
-	// var filter []bson.M
-	// filter = append(filter, bson.M{"_id": objId})
-	// then use bson.M{"$and": filter} or bson.M{"$or": filter} in Find
-
-	err = mongo.Client.Database(config.GetString("DB_DATABASE")).Collection("users").FindOne(mongo.Ctx, bson.M{"_id": objId}).Decode(&user)
-	if err != nil {
-		slog.Error(err)
+	_, err = result.ReadDocument(arango.Ctx, &user)
+	if driver.IsNoMoreDocuments(err) || err != nil {
+		slog.Errorf("Failed to read document: %v", err)
 		return models.User{}, config.ErrUserNotFound
 	}
+
 	return user, nil
 }
 
+// InsertUser inserts a new user into the database.
 func InsertUser(createUser models.CreateUser) (interface{}, error) {
-	mongo := config.NewMongoClient()
-	defer mongo.Close()
+	arango := config.NewArangoClient()
+	defer arango.Close()
 
-	user := models.User{
-		Email:          createUser.Email,
-		HashedPassword: createUser.Password,
-	}
-
-	result, err := mongo.Client.Database(config.GetString("DB_DATABASE")).Collection("users").InsertOne(mongo.Ctx, user)
+	collection, err := arango.Database.Collection(arango.Ctx, "users")
 	if err != nil {
-		slog.Error(err)
-		return nil, config.ErrUserInsertError
+		slog.Errorf("Failed to retrieve collection: %v", err)
+		return nil, err
 	}
-	return result.InsertedID, nil
+
+	meta, err := collection.CreateDocument(arango.Ctx, createUser)
+	if err != nil {
+		slog.Errorf("Failed to create document: %v", err)
+		return nil, err
+	}
+
+	return meta.Key, nil
 }

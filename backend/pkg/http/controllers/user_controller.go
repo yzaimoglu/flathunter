@@ -8,6 +8,19 @@ import (
 
 // GetUsers retrieves all the users
 func GetUsers(c *fiber.Ctx) error {
+	users, err := services.GetUsers()
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(users)
+}
+
+// GetUser retrieves all the users
+func GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	user, err := services.GetUser(id)
 
@@ -17,9 +30,7 @@ func GetUsers(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"user": user,
-	})
+	return c.Status(fiber.StatusOK).JSON(user)
 }
 
 // GetUsers retrieves all the users

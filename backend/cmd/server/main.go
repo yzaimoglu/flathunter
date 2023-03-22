@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/helmet/v2"
 	"github.com/gookit/slog"
-	"github.com/yzaimoglu/flathunter/config"
+	"github.com/yzaimoglu/flathunter/pkg/config"
 	"github.com/yzaimoglu/flathunter/pkg/http/api"
 )
 
@@ -16,6 +16,7 @@ func main() {
 	if !fiber.IsChild() {
 		config.Load()
 		config.SetupLogger()
+		config.SetupArango()
 	}
 
 	server := fiber.New(
@@ -46,7 +47,7 @@ func main() {
 
 	go func() {
 		if err := server.Listen(":" + config.GetString("SERVER_PORT")); err != nil {
-			slog.Fatal("Error starting server: %v", err)
+			slog.Fatalf("Error starting server: %v", err)
 		}
 	}()
 

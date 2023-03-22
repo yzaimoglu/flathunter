@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.7'
 
 services:
   mongodb:
@@ -13,6 +13,16 @@ services:
       - backend_net
     volumes:
       - mongodb:/data/db
+  arangodb:
+    image: arangodb:latest
+    env_file: backend/.env
+    environment:
+      ARANGO_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 8529:8529
+    volumes:
+      - arangodb_data_container:/var/lib/arangodb3
+      - arangodb_apps_data_container:/var/lib/arangodb3-apps
 
 networks:
   backend_net:
@@ -20,3 +30,5 @@ networks:
 
 volumes:
     mongodb:
+    arangodb_data_container:
+    arangodb_apps_data_container:
