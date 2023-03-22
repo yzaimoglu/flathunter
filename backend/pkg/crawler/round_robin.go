@@ -27,7 +27,7 @@ type roundrobin_ua struct {
 
 func NewProxy(proxies ...*models.Proxy) (RoundRobinProxy, error) {
 	if len(proxies) == 0 {
-		return nil, errors.New("No Proxy found")
+		return nil, errors.New("no proxy found")
 	}
 
 	return &roundrobin_proxy{
@@ -37,7 +37,7 @@ func NewProxy(proxies ...*models.Proxy) (RoundRobinProxy, error) {
 
 func NewUserAgent(user_agents ...*models.UserAgent) (RoundRobinUA, error) {
 	if len(user_agents) == 0 {
-		return nil, errors.New("No User Agent found")
+		return nil, errors.New("no user agent found")
 	}
 
 	return &roundrobin_ua{
