@@ -32,7 +32,7 @@
                         <NuxtLink to="/terms-of-service" class="mx-2 text-sm text-gray-500 transition-colors duration-300 hover:text-gray-500 dark:hover:text-gray-300" aria-label="TOS"> Terms of Service </NuxtLink>
 
                         <NuxtLink to="/privacy-policy" class="mx-2 text-sm text-gray-500 transition-colors duration-300 hover:text-gray-500 dark:hover:text-gray-300" aria-label="Privacy"> Privacy </NuxtLink>
-                        
+
                         <NuxtLink to="/contact" class="mx-2 text-sm text-gray-500 transition-colors duration-300 hover:text-gray-500 dark:hover:text-gray-300" aria-label="Contact"> Contact </NuxtLink>
                     </div>
                 </div>

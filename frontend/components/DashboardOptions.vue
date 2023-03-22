@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div>        
+        <div>
             <div class="w-full overflow-hidden bg-white dark:bg-gray-900">
 
                 <p class="px-8">

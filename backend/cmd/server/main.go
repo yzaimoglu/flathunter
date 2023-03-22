@@ -44,7 +44,11 @@ func main() {
 
 	api.APIv1(server)
 
-	go server.Listen(":" + config.GetString("SERVER_PORT"))
+	go func() {
+		if err := server.Listen(":" + config.GetString("SERVER_PORT")); err != nil {
+			slog.Fatal("Error starting server: %v", err)
+		}
+	}()
 
 	config.SysCallSetup()
 }

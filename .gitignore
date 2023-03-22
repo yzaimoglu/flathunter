@@ -1,7 +1,7 @@
 ### Go ###
-# If you prefer the allow list template instead of the deny list, see 
+# If you prefer the allow list template instead of the deny list, see
 community template:
-# 
+#
 https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
@@ -29,7 +29,7 @@ go.work.sum
 ### Linux ###
 *~
 
-# temporary files which can be created if a process still has a handle 
+# temporary files which can be created if a process still has a handle
 open of a deleted file
 .fuse_hidden*
 
@@ -39,7 +39,7 @@ open of a deleted file
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
 
-# .nfs files are created when an open file is removed but is still being 
+# .nfs files are created when an open file is removed but is still being
 accessed
 .nfs*
 
@@ -104,7 +104,7 @@ coverage
 # nyc test coverage
 .nyc_output
 
-# Grunt intermediate storage 
+# Grunt intermediate storage
 (https://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
@@ -172,7 +172,7 @@ dist
 
 # Gatsby files
 .cache/
-# Comment in the public line in if your project uses Gatsby and not 
+# Comment in the public line in if your project uses Gatsby and not
 Next.js
 # https://nextjs.org/blog/next-9-1#public-directory-support
 # public

@@ -1,7 +1,7 @@
 <template>
     <div v-cloak>
         <LoadingSpinner v-if="!pageLoaded" />
-        <transition 
+        <transition
             :enter-from-class="'opacity-0'"
             :leave-to-class="'opacity-0'"
             :enter-active-class="'transition duration-500 ease-in'"

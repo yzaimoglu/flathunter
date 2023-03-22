@@ -6,7 +6,7 @@
                     <h1 class="text-2xl font-semibold text-gray-800 capitalize lg:text-3xl dark:text-white">Städte - Wohungen</h1>
                     <p class="text-gray-500 dark:text-gray-300">Einige Beispiele von Städten und ihre Wohnungsverfügbarkeiten</p>
                 </div>
-                
+
 
                 <div class="grid grid-cols-1 gap-8 mt-8 xl:gap-8 md:grid-cols-2 xl:grid-cols-4">
                     <div class="overflow-hidden bg-cover rounded-lg cursor-pointer h-[28rem] group"
@@ -49,4 +49,3 @@
         </section>
     </div>
 </template>>
-

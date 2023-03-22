@@ -76,6 +76,9 @@ func NewMongoClient() *MongoClient {
 func (client *MongoClient) Close() {
 	slog.Info("Closing the MongoDB client...")
 	client.Cancel()
-	client.Client.Disconnect(client.Ctx)
-	slog.Info("Closed the MongoDB client.")
+	if err := client.Client.Disconnect(client.Ctx); err != nil {
+		slog.Error("Failed to close the MongoDB client: %v", err)
+	} else {
+		slog.Info("Closed the MongoDB client.")
+	}
 }

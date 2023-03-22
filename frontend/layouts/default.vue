@@ -8,7 +8,7 @@
             </div>
         </div>
         <CookieNotice />
-    </div>    
+    </div>
 </template>
 
 <script setup>

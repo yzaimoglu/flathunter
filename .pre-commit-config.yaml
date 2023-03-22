@@ -1,0 +1,13 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      -   id: check-merge-conflict
+      -   id: check-yaml
+      -   id: end-of-file-fixer
+      -   id: trailing-whitespace
+
+- repo: https://github.com/yzaimoglu/pre-commit-golang
+  rev: dcab3e34fadd8a25a6437d5cbfb77db57882fc41
+  hooks:
+    - id: golangci-lint

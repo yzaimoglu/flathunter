@@ -14,4 +14,3 @@ export const deleteUser = (id) => {
 export const updateUser = (id, payload) => {
     return update(`/user/${id}`, payload)
 }
-

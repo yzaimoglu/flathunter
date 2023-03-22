@@ -27,7 +27,7 @@ export const get = (route) => {
       response.json().then(data => {
         return data
       })
-  }) 
+  })
 }
 
 export const update = (route, payload) => {
@@ -46,7 +46,7 @@ export const update = (route, payload) => {
       })
   })
 }
-  
+
 export const remove = (route) => {
   fetch(baseURL+route, {
     method: 'DELETE',
@@ -59,4 +59,3 @@ export const remove = (route) => {
       })
   })
 }
-  

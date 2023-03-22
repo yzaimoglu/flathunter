@@ -9,9 +9,9 @@
 <script setup>
     const flats = ref(
         [
-            {id: 1, name: "test", price: 500}, 
-            {id: 2, name: "test 2", price: 200}, 
-            {id: 3, name: "test 3", price: 1000}, 
+            {id: 1, name: "test", price: 500},
+            {id: 2, name: "test 2", price: 200},
+            {id: 3, name: "test 3", price: 1000},
             {id: 4, name: "test 4", price: 100},
             {id: 5, name: "test 5", price: 100},
             {id: 6, name: "test 6", price: 100},

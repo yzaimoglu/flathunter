@@ -30,7 +30,9 @@ func main() {
 		colly.MaxDepth(2),
 		colly.Async(true),
 	)
-	c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4})
+	if err := c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4}); err != nil {
+		fmt.Println(err)
+	}
 	c.SetRequestTimeout(120 * time.Second)
 
 	// Setting proxy
@@ -49,7 +51,9 @@ func main() {
 
 	// Visiting the listings specific urls to scrape
 	c.OnHTML("article.aditem", func(e *colly.HTMLElement) {
-		detailCollector.Visit("https://ebay-kleinanzeigen.de" + e.ChildAttr("a.ellipsis", "href"))
+		if err := detailCollector.Visit("https://ebay-kleinanzeigen.de" + e.ChildAttr("a.ellipsis", "href")); err != nil {
+			fmt.Println(err)
+		}
 	})
 
 	// Error while scraping
@@ -93,7 +97,9 @@ func main() {
 	})
 
 	// Visiting and waiting
-	c.Visit("https://www.ebay-kleinanzeigen.de/s-wandsbek/wohnung/k0l9446")
+	if err := c.Visit("https://www.ebay-kleinanzeigen.de/s-wandsbek/wohnung/k0l9446"); err != nil {
+		fmt.Println(err)
+	}
 	c.Wait()
 
 	// Waiting for the jobs to be complete
