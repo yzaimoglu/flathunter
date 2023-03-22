@@ -1,6 +1,6 @@
 The only program you'll need to find a flat in Germany as a student
 
-This program is licensed under the GNU GPLv3 License:
+This program is licensed under the BSD-3-Clause License:
 ```
 Copyright (c) 2023, Yagizalp Zaimoglu & Reza Jaber
 All rights reserved.
