@@ -25,15 +25,15 @@
     darkMode()
     setTimeout(() => {
       loaded.value = true
+      window.onerror = function(e){
+          if(e.includes("NotFoundError:")){
+            document.location.reload()
+          return true;
+        }
+      }
     }, 150)
   })
 
-  window.onerror = function(e){
-    if(e.includes("NotFoundError:")){
-        document.location.reload()
-        return true;
-    }
-  }
 
   useHead({
     link: [
