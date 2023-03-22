@@ -8,7 +8,8 @@ repos:
       -   id: trailing-whitespace
 
 - repo: https://github.com/yzaimoglu/pre-commit-golang
-  rev: f2040ec9cf05861e7accdd5081986ef26c83cae8
+  rev: 1d3ba072d5bf13cd37b4f4ea64ca25942818974e
   hooks:
     - id: golangci-lint
     - id: go-mod-tidy
+    - id: go-critic
