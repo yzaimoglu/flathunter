@@ -1,7 +1,18 @@
 package controllers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/yzaimoglu/flathunter/pkg/http/services"
+)
 
-func GetListings(c *fiber.Ctx) error {
-	return c.SendString("Listing")
+// GetListingURLs retrieves all the listings
+func GetListingURLs(c *fiber.Ctx) error {
+	urls, err := services.GetURLs()
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(urls)
 }

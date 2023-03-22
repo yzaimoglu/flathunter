@@ -7,7 +7,7 @@ import (
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
-// GetUser retrieves a user from the database.
+// GetUsers retrieves the users from the database.
 func GetUsers() ([]models.User, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()

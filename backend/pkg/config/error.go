@@ -9,4 +9,6 @@ var (
 	ErrInvalidUser     = errors.New("user is invalid")
 	ErrInvalidEmail    = errors.New("email is invalid")
 	ErrInvalidPass     = errors.New("password is invalid")
+	ErrURLNotFound     = errors.New("url was not found")
+	ErrURLsNotFound    = errors.New("urls were not found")
 )

@@ -11,6 +11,15 @@ run:
 	tmux send-keys -t flathunter-dev 'make dev-frontend' C-m
 	tmux attach -t flathunter-dev
 
+dev-client-log:
+	make dev-client | tee -a ./logs/client.log
+
+dev-server-log:
+	make dev-server | tee -a ./logs/server.log
+
+dev-frontend-log:
+	make dev-frontend | tee -a ./logs/frontend.log
+
 docker-up:
 	docker compose --env-file backend/.env up -d
 

@@ -1,10 +1,32 @@
 package models
 
-// Listing represents a listing of a flat.
+// Platform is a struct that holds the information for a platform.
+type Platform struct {
+	ArangoModel
+	Name         string `json:"name"`
+	ReadableName string `json:"readable_name"`
+}
+
+// URL is a struct that holds the information for a URL.
+type URL struct {
+	ArangoModel
+	Platform    Platform `json:"platform"`
+	URL         string   `json:"url"`
+	CreatedAt   int64    `json:"created_at"`
+	LastCrawled int64    `json:"last_crawled"`
+}
+
+// UserURL is a struct that holds the information for a user URL.
+type UserURL struct {
+	ArangoModel
+	User User `json:"user"`
+	URL  URL  `json:"url_id"`
+}
+
+// Listing is a struct that holds the information for a listing.
 type Listing struct {
-	ID           int64    `json:"id"`
-	URLID        int64    `json:"url_id"`
-	URL          string   `json:"url"`
+	ArangoModel
+	URL          URL      `json:"url"`
 	Images       []string `json:"images"`
 	Price        string   `json:"price"`
 	Date         string   `json:"date"`
@@ -21,13 +43,13 @@ type Listing struct {
 	OnlineTour   string   `json:"online_tour"`
 	HeatingCosts string   `json:"heating_costs"`
 	Availability string   `json:"availability"`
-	CrawledAt    int64    `json:"crawled_at"`
+	CreatedAt    int64    `json:"created_at"`
 }
 
-// UserListing represents a user listing.
+// UserListing is a struct that holds the information for a user listing.
 type UserListing struct {
-	ID        int64 `json:"id"`
-	UserID    int64 `json:"user_id"`
-	ListingID int64 `json:"listing_id"`
-	Notified  bool  `json:"notified"`
+	ArangoModel
+	User     User    `json:"user"`
+	Listing  Listing `json:"listing"`
+	Notified bool    `json:"notified"`
 }

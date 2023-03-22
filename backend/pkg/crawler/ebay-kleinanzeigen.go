@@ -87,25 +87,14 @@ func GetDetailsEbay(details []string, listing models.Listing) (resultingListing 
 }
 
 // StartEbayCrawl starts the crawling process for ebay-kleinanzeigen
-func StartEbayCrawl(url string) {
-	// Declaring alternating user agents
-	round_robin_ua, _ := NewUserAgent(
-		&models.UserAgent{ID: 1, UserAgent: "Mozilla/5.0 (Windows NT 5.1; en-US; rv:1.9.1.20) Gecko/20140810 Firefox/37.0"},
-		&models.UserAgent{ID: 2, UserAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84"},
-		&models.UserAgent{ID: 3, UserAgent: "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_2 rv:6.0) Gecko/20130127 Firefox/36.0"},
-		&models.UserAgent{ID: 4, UserAgent: "Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_6_5 rv:6.0; sl-SI) AppleWebKit/531.49.6 (KHTML, like Gecko) Version/5.0.1 Safari/531.49.6"},
-	)
-
-	// round_robin_proxy, _ := utilities.NewProxy(
-	// )
-
+func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
 	// Initializing the listings slice and the colly collector
 	var listings []models.Listing = []models.Listing{}
 
 	c := colly.NewCollector(
-		colly.UserAgent("Flathunters"),
+		colly.UserAgent(ua.UserAgent),
 		colly.AllowURLRevisit(),
-		colly.CacheDir("./cache"),
+		//colly.CacheDir("./cache"),
 		colly.MaxDepth(2),
 		colly.Async(true),
 	)
@@ -116,17 +105,17 @@ func StartEbayCrawl(url string) {
 	c.SetRequestTimeout(120 * time.Second)
 
 	// Setting proxy
-	//c.SetProxy(utilities.ProxyString(round_robin_proxy.Next()))
+	//c.SetProxy(ProxyString(proxy))
 
 	// Cloning the colly collector for the detailCollector
 	detailCollector := c.Clone()
 
 	// Setting the alternating User Agent
 	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("User-Agent", round_robin_ua.Next().UserAgent)
+		r.Headers.Set("User-Agent", ua.UserAgent)
 	})
 	detailCollector.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("User-Agent", round_robin_ua.Next().UserAgent)
+		r.Headers.Set("User-Agent", ua.UserAgent)
 	})
 
 	// Visiting the listings specific urls to scrape
@@ -144,10 +133,20 @@ func StartEbayCrawl(url string) {
 	// Scraping the listings
 	detailCollector.OnHTML("article[id=viewad-product]", func(e *colly.HTMLElement) {
 		fmt.Println(e.Request.Headers.Get("User-Agent"))
+		fmt.Println(e.Request.ProxyURL)
+		fmt.Println(e.Response.Request.ProxyURL)
 		// Setting initial settings for Ebay-Kleinanzeigen
 		var listing models.Listing = models.Listing{
-			URLID: 1,
-			URL:   e.Request.URL.Host,
+			URL: models.URL{
+				URL: url,
+				Platform: models.Platform{
+					Name:         "ebay_kleinanzeigen",
+					ReadableName: "Ebay-Kleinanzeigen",
+				},
+				CreatedAt:   time.Now().Unix(),
+				LastCrawled: time.Now().Unix(),
+			},
+			CreatedAt: time.Now().Unix(),
 		}
 		// Scraping price
 		listing.Price = e.ChildText("h2[id=viewad-price]")

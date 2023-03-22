@@ -258,3 +258,6 @@ $RECYCLE.BIN/
 dist
 
 .vscode
+
+user_agents.crawl
+proxies.crawl
