@@ -7,14 +7,14 @@ RUN mkdir -p /app
 WORKDIR /app
 
 # copy the app, note .dockerignore
-COPY package.json .
+COPY ./frontend/package.json .
 RUN npm install
 
 FROM dependency-base AS production-base
 
 # build will also take care of building
 # if necessary
-COPY . .
+COPY ./frontend .
 RUN npm run build
 
 FROM $NODE_VERSION-slim AS production
