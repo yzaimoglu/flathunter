@@ -29,7 +29,16 @@ func main() {
 
 	for i := 0; i < 500; i++ {
 		workerPool.Submit(func() {
-			// crawler.StartEbayCrawl("http://localhost:50000/api/v1/users/get", round_robin_ua.Next(), round_robin_proxy.Next())
+			// crawler := crawler.InitCrawler(models.URL{
+			// 	URL: "https://ebay-kleinanzeigen.de/" + fmt.Sprint(time.Now().Unix()+int64(i)),
+			// 	Platform: models.Platform{
+			// 		Name:         "ebay_kleinanzeigen",
+			// 		ReadableName: "Ebay-Kleinanzeigen",
+			// 	},
+			// 	LastCrawled: time.Now().Unix(),
+			// 	CreatedAt:   time.Now().Unix(),
+			// }, round_robin_ua.Next(), round_robin_proxy.Next())
+			// crawler.Crawl()
 			services.InsertURL(models.CreateURL{
 				URL:         "https://ebay-kleinanzeigen.de/" + fmt.Sprint(time.Now().Unix()+int64(i)),
 				Platform:    "ebay_kleinanzeigen",

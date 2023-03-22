@@ -8,6 +8,7 @@ import (
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
+// GetDetailsWGGesucht is the function to get the details of a listing
 func GetDetailsWGGesucht(details []string, listing models.Listing) (resultingListing models.Listing) {
 	// Loop through scraped details and harvest specific details
 	for i := range details {
@@ -81,4 +82,9 @@ func GetDetailsWGGesucht(details []string, listing models.Listing) (resultingLis
 	}
 
 	return listing
+}
+
+// StartWgGesuchtCrawl is the function to start the crawling process
+func StartWgGesuchtCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
+
 }
