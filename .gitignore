@@ -257,4 +257,4 @@ $RECYCLE.BIN/
 # Nuxt generate
 dist
 
-# End of https://www.toptal.com/developers/gitignore/api/nuxtjs
+.vscode
