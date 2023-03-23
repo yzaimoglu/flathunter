@@ -177,6 +177,7 @@ Work in progress...
 
 _For more examples, please refer to the [Documentation](https://github.com/yzaimoglu/flathunter)_
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- ROADMAP -->
 ## Roadmap
 
