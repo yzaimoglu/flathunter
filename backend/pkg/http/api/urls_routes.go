@@ -7,5 +7,5 @@ import (
 
 func urlsRoutes(router fiber.Router) {
 	listing := router.Group("/urls")
-	listing.Get("/get", controllers.GetListingURLs)
+	listing.Get("/get", controllers.GetURLs)
 }

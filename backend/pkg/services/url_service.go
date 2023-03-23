@@ -18,7 +18,7 @@ func GetURLs() ([]models.URL, error) {
 
 	result, err := arango.Database.Query(arango.Ctx,
 		"FOR url IN urls SORT url.last_crawled ASC LIMIT 50 FILTER url.last_crawled+@crawl_time <= @now FOR platform in platforms FILTER url.platform == platform.name SORT url.last_crawled ASC RETURN merge(url, {platform: platform})",
-		map[string]interface{}{"now": time.Now().Unix() + 60*5, "crawl_time": 300})
+		map[string]interface{}{"now": (time.Now().Unix()), "crawl_time": 300})
 	if err != nil {
 		slog.Error(err)
 		return []models.URL{}, config.ErrURLsNotFound
@@ -41,6 +41,7 @@ func GetURLs() ([]models.URL, error) {
 		return []models.URL{}, config.ErrURLsNotFound
 	}
 
+	slog.Infof("Retrieved %d urls from the database.", len(urls))
 	return urls, nil
 }
 
@@ -61,5 +62,27 @@ func InsertURL(createURL models.CreateURL) (interface{}, error) {
 		return nil, err
 	}
 
+	slog.Infof("Inserted url with key %s into the database.", meta.Key)
 	return meta.Key, nil
+}
+
+// SetLastCrawledURL updates the last_crawled field of a url.
+func SetLastCrawledURL(key string) error {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	collection, err := arango.Database.Collection(arango.Ctx, "urls")
+	if err != nil {
+		slog.Errorf("Failed to retrieve collection: %v", err)
+		return err
+	}
+
+	_, err = collection.UpdateDocument(arango.Ctx, key, map[string]interface{}{"last_crawled": time.Now().Unix()})
+	if err != nil {
+		slog.Errorf("Failed to update document: %v", err)
+		return err
+	}
+
+	slog.Infof("Updated last_crawled of url with key %s in the database.", key)
+	return nil
 }

@@ -85,6 +85,6 @@ func GetDetailsWGGesucht(details []string, listing models.Listing) (resultingLis
 }
 
 // StartWgGesuchtCrawl is the function to start the crawling process
-func StartWgGesuchtCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
-
+func StartWgGesuchtCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []models.Listing {
+	return []models.Listing{}
 }

@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/yzaimoglu/flathunter/pkg/http/services"
 	"github.com/yzaimoglu/flathunter/pkg/models"
+	"github.com/yzaimoglu/flathunter/pkg/services"
 )
 
 // GetUsers retrieves all the users

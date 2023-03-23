@@ -1,22 +1,32 @@
 package crawler
 
-import "github.com/yzaimoglu/flathunter/pkg/models"
+import (
+	"github.com/alitto/pond"
+	"github.com/yzaimoglu/flathunter/pkg/models"
+)
 
 const (
 	EbayKleinazeigen = "ebay_kleinanzeigen"
 	WgGesucht        = "wg_gesucht"
 )
 
-// Crawler is the base struct for all crawlers
+// Crawler is the base struct for the crawler application
 type Crawler struct {
+	WorkerPool  *pond.WorkerPool
+	ProxyRR     RoundRobinProxy
+	UserAgentRR RoundRobinUA
+}
+
+// CrawlerClient is the base struct for all crawlers
+type CrawlerClient struct {
 	URL       models.URL
 	UserAgent *models.UserAgent
 	Proxy     *models.Proxy
 }
 
 // InitCrawler is the init function for all crawlers
-func InitCrawler(url models.URL, ua *models.UserAgent, proxy *models.Proxy) Crawler {
-	return Crawler{
+func (crawler Crawler) InitCrawler(url models.URL, ua *models.UserAgent, proxy *models.Proxy) CrawlerClient {
+	return CrawlerClient{
 		UserAgent: ua,
 		Proxy:     proxy,
 		URL:       url,
@@ -24,13 +34,16 @@ func InitCrawler(url models.URL, ua *models.UserAgent, proxy *models.Proxy) Craw
 }
 
 // Crawl is the main function for all crawlers
-func (crawler Crawler) Crawl() {
+func (crawler CrawlerClient) Crawl() []models.Listing {
+	var listings []models.Listing
 	switch crawler.URL.Platform.Name {
 	case EbayKleinazeigen:
-		StartEbayCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
-		return
+		listings = StartEbayCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
+		return listings
 	case WgGesucht:
-		StartWgGesuchtCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
-		return
+		listings = StartWgGesuchtCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
+		return listings
 	}
+
+	return []models.Listing{}
 }

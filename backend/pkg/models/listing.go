@@ -26,7 +26,7 @@ type UserURL struct {
 // Listing is a struct that holds the information for a listing.
 type Listing struct {
 	ArangoModel
-	URL          URL      `json:"url"`
+	URL          string   `json:"url"`
 	Images       []string `json:"images"`
 	Price        string   `json:"price"`
 	Date         string   `json:"date"`

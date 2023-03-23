@@ -44,8 +44,6 @@ func NewArangoClient() *ArangoClient {
 		Password: GetString("DB_PASSWORD"),
 	}
 
-	slog.Info("Connecting to the ArangoDB database...")
-
 	connectionURI := fmt.Sprintf(ArangoConnectionString, arangoConnection.Host, arangoConnection.Port)
 
 	conn, err := http.NewConnection(http.ConnectionConfig{
@@ -74,7 +72,6 @@ func NewArangoClient() *ArangoClient {
 		Connection: arangoConnection,
 	}
 
-	slog.Info("Connected to the ArangoDB database.")
 	return arangoClient.GetDatabase()
 }
 
@@ -88,6 +85,7 @@ func SetupArango() {
 		arango.CreateDatabase()
 	}
 
+	arango.CheckCollectionsAndCreate()
 	slog.Info("Setup of the ArangoDB database complete.")
 }
 
@@ -110,6 +108,55 @@ func (arango *ArangoClient) CheckDatabase() bool {
 		slog.Fatalf("Failed to check if database exists: %v", err)
 	}
 	return exists
+}
+
+// CheckCollectionsAndCreate checks if the collections exist and creates them if they do not.
+func (arango *ArangoClient) CheckCollectionsAndCreate() {
+	if !arango.CheckCollection("users") {
+		arango.CreateCollection("users")
+	}
+	if !arango.CheckCollection("platforms") {
+		arango.CreateCollection("platforms")
+	}
+	if !arango.CheckCollection("roles") {
+		arango.CreateCollection("roles")
+	}
+	if !arango.CheckCollection("urls") {
+		arango.CreateCollection("urls")
+	}
+	if !arango.CheckCollection("listings") {
+		arango.CreateCollection("listings")
+	}
+}
+
+// CheckCollection checks if a collection exists.
+func (arango *ArangoClient) CheckCollection(name string) bool {
+	collections, err := arango.Database.Collections(arango.Ctx)
+	if err != nil {
+		slog.Fatalf("Failed to check if collections exist: %v", err)
+	}
+
+	for _, collection := range collections {
+		if collection.Name() == name {
+			return true
+		}
+	}
+
+	return false
+}
+
+// CreateCollection creates a collection.
+func (arango *ArangoClient) CreateCollection(name string) error {
+	if arango.CheckCollection(name) {
+		slog.Infof("Collection %s already exists.", name)
+		return nil
+	}
+
+	if _, err := arango.Database.CreateCollection(arango.Ctx, name, nil); err != nil {
+		slog.Errorf("Failed to create collection: %v", err)
+		return err
+	}
+	return nil
 }
 
 // GetDatabase retrieves the flathunter database.

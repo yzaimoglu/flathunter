@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gookit/slog"
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
 // GetDetailsEbay scrapes the details of a listing from the ebay-kleinanzeigen website
-func GetDetailsEbay(details []string, listing models.Listing) (resultingListing models.Listing) {
+func GetDetailsEbay(details []string, listing models.Listing) models.Listing {
 	// Loop through scraped details and harvest specific details
 	for i := range details {
 		details[i] = strings.ReplaceAll(strings.ReplaceAll(details[i], " ", ""), "\n", "")
@@ -23,9 +24,13 @@ func GetDetailsEbay(details []string, listing models.Listing) (resultingListing 
 		} else if strings.HasPrefix(details[i], "Zimmer") {
 			replacer = "Zimmer"
 			details[i] = strings.Replace(details[i], replacer, "", 1)
+			if strings.Contains(details[i], ",") {
+				splitted_rooms := strings.Split(details[i], ",")
+				details[i] = splitted_rooms[0]
+			}
 			rooms_int, err := strconv.Atoi(details[i])
 			if err != nil {
-				fmt.Println("Error during conversion of rooms to int")
+				slog.Errorf("Error during conversion of rooms to int: %v", err.Error)
 				rooms_int = 0
 			}
 			listing.Rooms = rooms_int
@@ -34,7 +39,7 @@ func GetDetailsEbay(details []string, listing models.Listing) (resultingListing 
 			details[i] = strings.Replace(details[i], replacer, "", 1)
 			bathrooms_int, err := strconv.Atoi(details[i])
 			if err != nil {
-				fmt.Println("Error during conversion of bathrooms to int")
+				slog.Errorf("Error during conversion of bathrooms to int: %v", err.Error)
 				bathrooms_int = 0
 			}
 			listing.Bathrooms = bathrooms_int
@@ -63,7 +68,7 @@ func GetDetailsEbay(details []string, listing models.Listing) (resultingListing 
 			details[i] = strings.Replace(details[i], replacer, "", 1)
 			bedrooms_int, err := strconv.Atoi(details[i])
 			if err != nil {
-				fmt.Println("Error during conversion of bedrooms to int")
+				slog.Errorf("Error during conversion of bedrooms to int: %v", err.Error)
 				bedrooms_int = 0
 			}
 			listing.Bedrooms = bedrooms_int
@@ -80,17 +85,14 @@ func GetDetailsEbay(details []string, listing models.Listing) (resultingListing 
 			details[i] = strings.Replace(details[i], replacer, "", 1)
 			listing.HeatingCosts = details[i]
 		}
-
 	}
 
 	return listing
 }
 
 // StartEbayCrawl starts the crawling process for ebay-kleinanzeigen
-func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
-	// Initializing the listings slice and the colly collector
+func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []models.Listing {
 	var listings []models.Listing = []models.Listing{}
-
 	c := colly.NewCollector(
 		colly.UserAgent(ua.UserAgent),
 		colly.AllowURLRevisit(),
@@ -99,13 +101,14 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
 		colly.Async(true),
 	)
 
+	// Setting the limit for the parallelism
 	if err := c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4}); err != nil {
 		fmt.Println(err)
 	}
 	c.SetRequestTimeout(120 * time.Second)
 
 	// Setting proxy
-	//c.SetProxy(ProxyString(proxy))
+	c.SetProxy(ProxyString(proxy))
 
 	// Cloning the colly collector for the detailCollector
 	detailCollector := c.Clone()
@@ -121,31 +124,20 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
 	// Visiting the listings specific urls to scrape
 	c.OnHTML("article.aditem", func(e *colly.HTMLElement) {
 		if err := detailCollector.Visit("https://ebay-kleinanzeigen.de" + e.ChildAttr("a.ellipsis", "href")); err != nil {
-			fmt.Println(err)
+			slog.Errorf("Error while visiting the detail page: %s", err)
 		}
 	})
 
 	// Error while scraping
 	c.OnError(func(r *colly.Response, e error) {
-		fmt.Println("Got this error:", e)
+		slog.Errorf("Request URL: %s failed with response: %s", r.Request.URL, r.StatusCode)
 	})
 
 	// Scraping the listings
 	detailCollector.OnHTML("article[id=viewad-product]", func(e *colly.HTMLElement) {
-		fmt.Println(e.Request.Headers.Get("User-Agent"))
-		fmt.Println(e.Request.ProxyURL)
-		fmt.Println(e.Response.Request.ProxyURL)
 		// Setting initial settings for Ebay-Kleinanzeigen
 		var listing models.Listing = models.Listing{
-			URL: models.URL{
-				URL: url,
-				Platform: models.Platform{
-					Name:         "ebay_kleinanzeigen",
-					ReadableName: "Ebay-Kleinanzeigen",
-				},
-				CreatedAt:   time.Now().Unix(),
-				LastCrawled: time.Now().Unix(),
-			},
+			URL:       e.Request.URL.String(),
 			CreatedAt: time.Now().Unix(),
 		}
 		// Scraping price
@@ -177,15 +169,11 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) {
 
 	// Visiting and waiting
 	if err := c.Visit(url); err != nil {
-		fmt.Println(err)
+		slog.Errorf("Error while visiting the url: %s", err)
 	}
 	c.Wait()
 
-	// Waiting for the jobs to be complete
-	time.Sleep(5 * time.Second)
-
-	// Looping through the listings and printing out the resulting objects
-	for i := range listings {
-		fmt.Println(listings[i])
-	}
+	time.Sleep(10 * time.Second)
+	slog.Infof("Successfully scraped %d listings from %s", len(listings), url)
+	return listings
 }

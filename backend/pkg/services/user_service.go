@@ -35,6 +35,7 @@ func GetUsers() ([]models.User, error) {
 		users = append(users, user)
 	}
 
+	slog.Infof("Retrieved %d users from the database.", len(users))
 	return users, nil
 }
 
@@ -60,6 +61,7 @@ func GetUser(id string) (models.User, error) {
 		return models.User{}, config.ErrUserNotFound
 	}
 
+	slog.Infof("Retrieved user with key %s from the database.", user.Key)
 	return user, nil
 }
 
@@ -80,5 +82,6 @@ func InsertUser(createUser models.CreateUser) (interface{}, error) {
 		return nil, err
 	}
 
+	slog.Infof("Inserted user with key %s into the database.", meta.Key)
 	return meta.Key, nil
 }
