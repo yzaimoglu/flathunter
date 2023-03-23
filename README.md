@@ -141,6 +141,7 @@ To get a local copy up and running follow these simple example steps.
    make docker-up
    ```
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Installation Bare-Metal
 1. Clone the git repository at [https://github.com/yzaimoglu/flathunter](https://github.com/yzaimoglu/flathunter)
