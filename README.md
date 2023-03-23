@@ -74,12 +74,10 @@ The project is open source, which means that anyone can contribute to it by addi
 
 ### Built With
 
-* ![Docker][Docker]
-* ![Swagger][Swagger]
-
 **Backend:**
 * ![Go][Go]
 * ![ArangoDB][ArangoDB]
+* ![Redis][Redis]
 
 **Frontend:**
 * ![JavaScript][JavaScript]
@@ -87,39 +85,42 @@ The project is open source, which means that anyone can contribute to it by addi
 * ![Nuxt][NuxtJS]
 * ![Tailwind][TailwindCSS]
 
+**General:**
+* ![Docker][Docker]
+* ![Swagger][Swagger]
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ## Getting Started
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Getting started with Flathunter is very easy. Make sure to have the prerequisites for your deployment of choice installed. After that follow the installation steps provided by us.
 
 ### Prerequisites
 **If you want to deploy using the provided Dockerfiles or the Docker Compose file you only need:**
-* Make
-  *MacOS:* ```xcode-select --install```
-  *Linux distros:* should be preinstalled
-  *More Info:* [gnu.org](https://www.gnu.org/software/make/)
-* Docker & Docker Compose
-  *More Info:* [docs.docker.com](https://docs.docker.com/get-docker/)
+* Make  
+  *MacOS:* ```xcode-select --install```  
+  *Linux distros:* should be preinstalled  
+  *More Info:* [gnu.org](https://www.gnu.org/software/make/)  
+* Docker & Docker Compose  
+  *More Info:* [docs.docker.com](https://docs.docker.com/get-docker/)  
 
 **If you want to run Flathunter on bare-metal, you'll need:**
-* Make
-  *MacOS:* ```xcode-select --install```
-  *Linux distros:* should be preinstalled
-  *More Info:* [gnu.org](https://www.gnu.org/software/make/)
-* Node (Tested and functional on v16.15.0)
-  *MacOS:* ```brew install node@16```
-  *Debian based Linux distros:* ```apt-get install node```
-  *More Info:* [nodejs.org](https://nodejs.org)
-* npm (Tested and functional on v8.5.5)
+* Make  
+  *MacOS:* ```xcode-select --install```  
+  *Linux distros:* should be preinstalled   
+  *More Info:* [gnu.org](https://www.gnu.org/software/make/)  
+* Node (Tested and functional on v16.15.0)  
+  *MacOS:* ```brew install node@16```  
+  *Debian based Linux distros:* ```apt-get install node```  
+  *More Info:* [nodejs.org](https://nodejs.org)  
+* npm (Tested and functional on v8.5.5)  
   ```sh
-  npm install npm@latest -g
-  ```
-* Go (Tested and functional on v1.20.2)
-  *MacOS:* ```brew install go```
-  *Debian based Linux distros:* ```apt-get install go```
-  *More Info:* [go.dev](https://go.dev/dl/)
+  npm install npm@latest -g 
+  ```  
+* Go (Tested and functional on v1.20.2)  
+  *MacOS:* ```brew install go```  
+  *Debian based Linux distros:* ```apt-get install go```  
+  *More Info:* [go.dev](https://go.dev/dl/)  
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -172,7 +173,7 @@ To get a local copy up and running follow these simple example steps.
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Work in progress...
 
 _For more examples, please refer to the [Documentation](https://github.com/yzaimoglu/flathunter)_
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -223,8 +224,8 @@ Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Yagizalp Zaimoglu - [@yzaimoglu](https://yagizalp.dev) - yagizalp@mitocho.io
-Reza Jaber - [@rezajaber](https://rezajaber.dev) - reza@mitocho.io
+Yagizalp Zaimoglu - [@yzaimoglu](https://yagizalp.dev) - yagizalp@mitocho.io  
+Reza Jaber - [@rezajaber](https://rezajaber.dev) - reza@mitocho.io  
 
 Project Link: [https://github.com/yzaimoglu/flathunter](https://github.com/yzaimoglu/flathunter)
 
@@ -252,7 +253,8 @@ Project Link: [https://github.com/yzaimoglu/flathunter](https://github.com/yzaim
 [license-shield]: https://img.shields.io/github/license/yzaimoglu/flathunter.svg?style=flat
 [license-url]: https://github.com/yzaimoglu/flathunter/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/yagizalp-zaimoglu
+[linkedin-url-yz]: https://linkedin.com/in/yagizalp-zaimoglu
+[linkedin-url-rj]: https://www.linkedin.com/in/reza-jaber-583b511ba/
 [product-screenshot]: images/screenshot.png
 [VueJS]: https://img.shields.io/badge/Vue.js-35495E?style=flat&logo=vuedotjs&logoColor=4FC08D
 [Go]: https://img.shields.io/badge/go-%2300ADD8.svg?style=flat&logo=go&logoColor=white
@@ -264,3 +266,4 @@ Project Link: [https://github.com/yzaimoglu/flathunter](https://github.com/yzaim
 [NodeJS]: https://img.shields.io/badge/node.js-6DA55F?style=flat&logo=node.js&logoColor=white
 [NuxtJS]: https://img.shields.io/badge/Nuxt-002E3B?style=flat&logo=nuxtdotjs&logoColor=#00DC82
 [ArangoDB]: https://img.shields.io/badge/ArangoDB-DDE072.svg?style=flat&logo=ArangoDB&logoColor=black
+[Redis]: https://img.shields.io/badge/redis-%23DD0031.svg?style=flat&logo=redis&logoColor=white
