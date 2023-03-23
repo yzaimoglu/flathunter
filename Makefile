@@ -11,6 +11,20 @@ run:
 	tmux send-keys -t flathunter-dev 'make dev-frontend' C-m
 	tmux attach -t flathunter-dev
 
+install-frontend:
+	cd frontend && npm install
+
+install-backend:
+	cd backend && go mod download
+
+install:
+	make install-frontend
+	make install-backend
+
+build:
+	make prod-backend
+	make prod-frontend
+
 dev-client-log:
 	make dev-client | tee -a ./logs/client.log
 
@@ -50,6 +64,11 @@ prod-backend:
 
 clean:
 	rm $(OUT)-client $(OUT)-server $(OUT)-frontend
+
+docker-build:
+	make docker-server
+	make docker-client
+	make docker-frontend
 
 docker-server:
 	docker build -t flathunter-server:$(BACKEND_VERSION) backend -f Dockerfile.server
