@@ -3,53 +3,53 @@ package models
 // Platform is a struct that holds the information for a platform.
 type Platform struct {
 	ArangoModel
-	Name         string `json:"name"`
-	ReadableName string `json:"readable_name"`
+	Name         string `json:"name,omitempty"`
+	ReadableName string `json:"readable_name,omitempty"`
 }
 
 // URL is a struct that holds the information for a URL.
 type URL struct {
 	ArangoModel
-	Platform    Platform `json:"platform"`
-	URL         string   `json:"url"`
-	CreatedAt   int64    `json:"created_at"`
-	LastCrawled int64    `json:"last_crawled"`
+	Platform    Platform `json:"platform,omitempty"`
+	URL         string   `json:"url,omitempty"`
+	CreatedAt   int64    `json:"created_at,omitempty"`
+	LastCrawled int64    `json:"last_crawled,omitempty"`
 }
 
 // UserURL is a struct that holds the information for a user URL.
 type UserURL struct {
 	ArangoModel
-	User User `json:"user"`
-	URL  URL  `json:"url_id"`
+	User User `json:"user,omitempty"`
+	URL  URL  `json:"url_id,omitempty"`
 }
 
 // Listing is a struct that holds the information for a listing.
 type Listing struct {
 	ArangoModel
-	URL          string   `json:"url"`
-	Images       []string `json:"images"`
-	Price        string   `json:"price"`
-	Date         string   `json:"date"`
-	Description  string   `json:"description"`
-	Size         string   `json:"size"`
-	Rooms        int      `json:"rooms"`
-	Bathrooms    int      `json:"bathrooms"`
-	Floor        string   `json:"floor"`
-	Type         string   `json:"type"`
-	ExtraCosts   string   `json:"extra_costs"`
-	FullRent     string   `json:"full_rent"`
-	Deposit      string   `json:"deposit"`
-	Bedrooms     int      `json:"bedrooms"`
-	OnlineTour   string   `json:"online_tour"`
-	HeatingCosts string   `json:"heating_costs"`
-	Availability string   `json:"availability"`
-	CreatedAt    int64    `json:"created_at"`
+	URL          string   `json:"url,omitempty"`
+	Images       []string `json:"images,omitempty"`
+	Price        string   `json:"price,omitempty"`
+	Date         string   `json:"date,omitempty"`
+	Description  string   `json:"description,omitempty"`
+	Size         string   `json:"size,omitempty"`
+	Rooms        int      `json:"rooms,omitempty"`
+	Bathrooms    int      `json:"bathrooms,omitempty"`
+	Floor        string   `json:"floor,omitempty"`
+	Type         string   `json:"type,omitempty"`
+	ExtraCosts   string   `json:"extra_costs,omitempty"`
+	FullRent     string   `json:"full_rent,omitempty"`
+	Deposit      string   `json:"deposit,omitempty"`
+	Bedrooms     int      `json:"bedrooms,omitempty"`
+	OnlineTour   string   `json:"online_tour,omitempty"`
+	HeatingCosts string   `json:"heating_costs,omitempty"`
+	Availability string   `json:"availability,omitempty"`
+	CreatedAt    int64    `json:"created_at,omitempty"`
 }
 
 // UserListing is a struct that holds the information for a user listing.
 type UserListing struct {
 	ArangoModel
-	User     User    `json:"user"`
-	Listing  Listing `json:"listing"`
-	Notified bool    `json:"notified"`
+	User     User    `json:"user,omitempty"`
+	Listing  Listing `json:"listing,omitempty"`
+	Notified bool    `json:"notified,omitempty"`
 }

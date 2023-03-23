@@ -12,8 +12,15 @@ import (
 )
 
 const (
-	ArangoConnectionString  = "http://%s:%d"
-	ArangoConnectionTimeout = 5
+	ArangoConnectionString       = "http://%s:%d"
+	ArangoConnectionTimeout      = 5
+	ArangoUsersCollection        = "users"
+	ArangoRolesCollection        = "roles"
+	ArangoPlatformsCollection    = "platforms"
+	ArangoURLsCollection         = "urls"
+	ArangoListingsCollection     = "listings"
+	ArangoUserListingsCollection = "user_listings"
+	ArangoUserURLsCollection     = "user_urls"
 )
 
 // ArangoConnection is a struct that holds the connection information for the ArangoDB database.
@@ -112,20 +119,26 @@ func (arango *ArangoClient) CheckDatabase() bool {
 
 // CheckCollectionsAndCreate checks if the collections exist and creates them if they do not.
 func (arango *ArangoClient) CheckCollectionsAndCreate() {
-	if !arango.CheckCollection("users") {
-		arango.CreateCollection("users")
+	if !arango.CheckCollection(ArangoUsersCollection) {
+		arango.CreateCollection(ArangoUsersCollection)
 	}
-	if !arango.CheckCollection("platforms") {
-		arango.CreateCollection("platforms")
+	if !arango.CheckCollection(ArangoPlatformsCollection) {
+		arango.CreateCollection(ArangoPlatformsCollection)
 	}
-	if !arango.CheckCollection("roles") {
-		arango.CreateCollection("roles")
+	if !arango.CheckCollection(ArangoRolesCollection) {
+		arango.CreateCollection(ArangoRolesCollection)
 	}
-	if !arango.CheckCollection("urls") {
-		arango.CreateCollection("urls")
+	if !arango.CheckCollection(ArangoURLsCollection) {
+		arango.CreateCollection(ArangoURLsCollection)
 	}
-	if !arango.CheckCollection("listings") {
-		arango.CreateCollection("listings")
+	if !arango.CheckCollection(ArangoListingsCollection) {
+		arango.CreateCollection(ArangoListingsCollection)
+	}
+	if !arango.CheckCollection(ArangoUserListingsCollection) {
+		arango.CreateCollection(ArangoUserListingsCollection)
+	}
+	if !arango.CheckCollection(ArangoUserURLsCollection) {
+		arango.CreateCollection(ArangoUserURLsCollection)
 	}
 }
 
