@@ -11,85 +11,6 @@ import (
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
-// GetDetailsEbay scrapes the details of a listing from the ebay-kleinanzeigen website
-func GetDetailsEbay(details []string, listing models.Listing) models.Listing {
-	// Loop through scraped details and harvest specific details
-	for i := range details {
-		details[i] = strings.ReplaceAll(strings.ReplaceAll(details[i], " ", ""), "\n", "")
-		replacer := ""
-		if strings.HasPrefix(details[i], "Wohnfläche") {
-			replacer = "Wohnfläche"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.Size = details[i]
-		} else if strings.HasPrefix(details[i], "Zimmer") {
-			replacer = "Zimmer"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			if strings.Contains(details[i], ",") {
-				splitted_rooms := strings.Split(details[i], ",")
-				details[i] = splitted_rooms[0]
-			}
-			rooms_int, err := strconv.Atoi(details[i])
-			if err != nil {
-				slog.Errorf("Error during conversion of rooms to int: %v", err.Error)
-				rooms_int = 0
-			}
-			listing.Rooms = rooms_int
-		} else if strings.HasPrefix(details[i], "Badezimmer") {
-			replacer = "Badezimmer"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			bathrooms_int, err := strconv.Atoi(details[i])
-			if err != nil {
-				slog.Errorf("Error during conversion of bathrooms to int: %v", err.Error)
-				bathrooms_int = 0
-			}
-			listing.Bathrooms = bathrooms_int
-		} else if strings.HasPrefix(details[i], "Etage") {
-			replacer = "Etage"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.Floor = details[i]
-		} else if strings.HasPrefix(details[i], "Wohnungstyp") {
-			replacer = "Wohnungstyp"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.Type = details[i]
-		} else if strings.HasPrefix(details[i], "Nebenkosten") {
-			replacer = "Nebenkosten"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.ExtraCosts = details[i]
-		} else if strings.HasPrefix(details[i], "Warmmiete") {
-			replacer = "Warmmiete"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.FullRent = details[i]
-		} else if strings.HasPrefix(details[i], "Kaution/Genoss.-Anteile") {
-			replacer = "Kaution/Genoss.-Anteile"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.Deposit = details[i]
-		} else if strings.HasPrefix(details[i], "Schlafzimmer") {
-			replacer = "Schlafzimmer"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			bedrooms_int, err := strconv.Atoi(details[i])
-			if err != nil {
-				slog.Errorf("Error during conversion of bedrooms to int: %v", err.Error)
-				bedrooms_int = 0
-			}
-			listing.Bedrooms = bedrooms_int
-		} else if strings.HasPrefix(details[i], "Verfügbarab") {
-			replacer = "Verfügbarab"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.Availability = details[i]
-		} else if strings.HasPrefix(details[i], "Online-Besichtigung") {
-			replacer = "Online-Besichtigung"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.OnlineTour = details[i]
-		} else if strings.HasPrefix(details[i], "Heizkosten") {
-			replacer = "Heizkosten"
-			details[i] = strings.Replace(details[i], replacer, "", 1)
-			listing.HeatingCosts = details[i]
-		}
-	}
-
-	return listing
-}
-
 // StartEbayCrawl starts the crawling process for ebay-kleinanzeigen
 func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []models.Listing {
 	var listings []models.Listing = []models.Listing{}
@@ -176,4 +97,83 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []mod
 	time.Sleep(10 * time.Second)
 	slog.Infof("Successfully scraped %d listings from %s", len(listings), url)
 	return listings
+}
+
+// GetDetailsEbay scrapes the details of a listing from the ebay-kleinanzeigen website
+func GetDetailsEbay(details []string, listing models.Listing) models.Listing {
+	// Loop through scraped details and harvest specific details
+	for i := range details {
+		details[i] = strings.ReplaceAll(strings.ReplaceAll(details[i], " ", ""), "\n", "")
+		replacer := ""
+		if strings.HasPrefix(details[i], "Wohnfläche") {
+			replacer = "Wohnfläche"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.Size = details[i]
+		} else if strings.HasPrefix(details[i], "Zimmer") {
+			replacer = "Zimmer"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			if strings.Contains(details[i], ",") {
+				splitted_rooms := strings.Split(details[i], ",")
+				details[i] = splitted_rooms[0]
+			}
+			rooms_int, err := strconv.Atoi(details[i])
+			if err != nil {
+				slog.Errorf("Error during conversion of rooms to int: %v", err.Error)
+				rooms_int = 0
+			}
+			listing.Rooms = rooms_int
+		} else if strings.HasPrefix(details[i], "Badezimmer") {
+			replacer = "Badezimmer"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			bathrooms_int, err := strconv.Atoi(details[i])
+			if err != nil {
+				slog.Errorf("Error during conversion of bathrooms to int: %v", err.Error)
+				bathrooms_int = 0
+			}
+			listing.Bathrooms = bathrooms_int
+		} else if strings.HasPrefix(details[i], "Etage") {
+			replacer = "Etage"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.Floor = details[i]
+		} else if strings.HasPrefix(details[i], "Wohnungstyp") {
+			replacer = "Wohnungstyp"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.Type = details[i]
+		} else if strings.HasPrefix(details[i], "Nebenkosten") {
+			replacer = "Nebenkosten"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.ExtraCosts = details[i]
+		} else if strings.HasPrefix(details[i], "Warmmiete") {
+			replacer = "Warmmiete"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.FullRent = details[i]
+		} else if strings.HasPrefix(details[i], "Kaution/Genoss.-Anteile") {
+			replacer = "Kaution/Genoss.-Anteile"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.Deposit = details[i]
+		} else if strings.HasPrefix(details[i], "Schlafzimmer") {
+			replacer = "Schlafzimmer"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			bedrooms_int, err := strconv.Atoi(details[i])
+			if err != nil {
+				slog.Errorf("Error during conversion of bedrooms to int: %v", err.Error)
+				bedrooms_int = 0
+			}
+			listing.Bedrooms = bedrooms_int
+		} else if strings.HasPrefix(details[i], "Verfügbarab") {
+			replacer = "Verfügbarab"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.Availability = details[i]
+		} else if strings.HasPrefix(details[i], "Online-Besichtigung") {
+			replacer = "Online-Besichtigung"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.OnlineTour = details[i]
+		} else if strings.HasPrefix(details[i], "Heizkosten") {
+			replacer = "Heizkosten"
+			details[i] = strings.Replace(details[i], replacer, "", 1)
+			listing.HeatingCosts = details[i]
+		}
+	}
+
+	return listing
 }
