@@ -45,6 +45,34 @@ func GetURLs() ([]models.URL, error) {
 	return urls, nil
 }
 
+// GetURL retrieves a single url.
+func GetURL(id string) (models.URL, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var url models.URL
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR url IN urls FILTER url._key == @id FOR platform in platforms FILTER url.platform == platform.name RETURN merge(url, {platform: platform})",
+		map[string]interface{}{"id": id})
+	if err != nil {
+		slog.Error(err)
+		return models.URL{}, config.ErrURLNotFound
+	}
+	defer result.Close()
+
+	_, err = result.ReadDocument(arango.Ctx, &url)
+	if driver.IsNoMoreDocuments(err) {
+		return models.URL{}, config.ErrURLNotFound
+	} else if err != nil {
+		slog.Errorf("Failed to read document: %v", err)
+		return models.URL{}, config.ErrURLNotFound
+	}
+
+	slog.Infof("Retrieved the url with id %s from the database.", id)
+	return url, nil
+}
+
 // InsertURL inserts a new url into the database.
 func InsertURL(createURL models.CreateURL) (interface{}, error) {
 	arango := config.NewArangoClient()
@@ -66,8 +94,8 @@ func InsertURL(createURL models.CreateURL) (interface{}, error) {
 	return meta.Key, nil
 }
 
-// SetLastCrawledURL updates the last_crawled field of a url.
-func SetLastCrawledURL(key string) error {
+// UpdateURL updates a single field of a url.
+func UpdateURL(field string, value interface{}, key string) error {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
@@ -77,12 +105,17 @@ func SetLastCrawledURL(key string) error {
 		return err
 	}
 
-	_, err = collection.UpdateDocument(arango.Ctx, key, map[string]interface{}{"last_crawled": time.Now().Unix()})
+	_, err = collection.UpdateDocument(arango.Ctx, key, map[string]interface{}{field: value})
 	if err != nil {
 		slog.Errorf("Failed to update document: %v", err)
 		return err
 	}
 
-	slog.Infof("Updated last_crawled of url with key %s in the database.", key)
+	slog.Infof("Updated %s of url with key %s in the database.", field, key)
 	return nil
+}
+
+// SetLastCrawledURL updates the last_crawled field of a url.
+func SetLastCrawledURL(key string) error {
+	return UpdateURL("last_crawled", time.Now().Unix(), key)
 }

@@ -15,11 +15,11 @@ func main() {
 	workerPool := pond.New(150, 1000)
 
 	// Create the crawler application
-	crawlerApp := crawler.Crawler{
-		WorkerPool:  workerPool,
-		ProxyRR:     round_robin_proxy,
-		UserAgentRR: round_robin_ua,
-	}
+	// crawlerApp := crawler.Crawler{
+	// 	WorkerPool:  workerPool,
+	// 	ProxyRR:     round_robin_proxy,
+	// 	UserAgentRR: round_robin_ua,
+	// }
 
 	// Load configuration
 	config.Load()
@@ -28,9 +28,11 @@ func main() {
 
 	// Setup cron jobs
 	cronScheduler := gocron.NewScheduler(time.Now().Location())
-	cronScheduler.Every(1).Minute().Do(func() {
-		crawlerApp.RunMinuteCron()
-	})
+	// cronScheduler.Every(1).Minute().Do(func() {
+	// 	crawlerApp.RunMinuteCron()
+	// })
+
+	_, _ = crawler.StartWgGesuchtCrawl("https://www.wg-gesucht.de/1-zimmer-wohnungen-in-Essen.35.1.1.0.html", round_robin_ua.Next(), round_robin_proxy.Next())
 
 	cronScheduler.StartAsync()
 	config.SysCallSetup()

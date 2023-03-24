@@ -16,9 +16,13 @@ func (crawler Crawler) RunMinuteCron() {
 	for _, url := range urls {
 		temp := url
 		crawler.WorkerPool.Submit(func() {
-			services.SetLastCrawledURL(temp.Key)
 			crawlerClient := crawler.InitCrawler(temp, crawler.UserAgentRR.Next(), crawler.ProxyRR.Next())
-			listings := crawlerClient.Crawl()
+			listings, err := crawlerClient.Crawl()
+			if err != nil {
+				slog.Errorf("Error while crawling: %s", err.Error())
+				return
+			}
+			services.SetLastCrawledURL(temp.Key)
 			crawler.WorkerPool.Submit(func() {
 				services.InsertListings(listings)
 			})

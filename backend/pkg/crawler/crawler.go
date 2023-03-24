@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"github.com/alitto/pond"
+	"github.com/gookit/slog"
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
@@ -34,16 +35,23 @@ func (crawler Crawler) InitCrawler(url models.URL, ua *models.UserAgent, proxy *
 }
 
 // Crawl is the main function for all crawlers
-func (crawler CrawlerClient) Crawl() []models.Listing {
-	var listings []models.Listing
+func (crawler CrawlerClient) Crawl() ([]models.Listing, error) {
 	switch crawler.URL.Platform.Name {
 	case EbayKleinazeigen:
-		listings = StartEbayCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
-		return listings
+		listings, err := StartEbayCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
+		if err != nil {
+			slog.Errorf("Error while crawling: %s", err)
+			return []models.Listing{}, err
+		}
+		return listings, nil
 	case WgGesucht:
-		listings = StartWgGesuchtCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
-		return listings
+		listings, err := StartWgGesuchtCrawl(crawler.URL.URL, crawler.UserAgent, crawler.Proxy)
+		if err != nil {
+			slog.Errorf("Error while crawling: %s", err)
+			return []models.Listing{}, err
+		}
+		return listings, nil
 	}
 
-	return []models.Listing{}
+	return []models.Listing{}, nil
 }

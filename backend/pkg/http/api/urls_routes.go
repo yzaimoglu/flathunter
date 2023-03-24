@@ -8,4 +8,5 @@ import (
 func urlsRoutes(router fiber.Router) {
 	listing := router.Group("/urls")
 	listing.Get("/get", controllers.GetURLs)
+	listing.Get("/get/:id", controllers.GetURL)
 }

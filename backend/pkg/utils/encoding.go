@@ -1,6 +1,8 @@
 package utils
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+)
 
 // ToBase64 encodes a byte array to a base64 string
 func ToBase64(data []byte) string {

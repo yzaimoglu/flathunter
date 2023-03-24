@@ -12,8 +12,11 @@ import (
 )
 
 // StartEbayCrawl starts the crawling process for ebay-kleinanzeigen
-func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []models.Listing {
+func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) ([]models.Listing, error) {
 	var listings []models.Listing = []models.Listing{}
+	var crawlError error
+	crawlError = nil
+
 	c := colly.NewCollector(
 		colly.UserAgent(ua.UserAgent),
 		colly.AllowURLRevisit(),
@@ -46,13 +49,21 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []mod
 	c.OnHTML("article.aditem", func(e *colly.HTMLElement) {
 		if err := detailCollector.Visit("https://ebay-kleinanzeigen.de" + e.ChildAttr("a.ellipsis", "href")); err != nil {
 			slog.Errorf("Error while visiting the detail page: %s", err)
+			crawlError = err
 		}
 	})
+	if crawlError != nil {
+		return []models.Listing{}, crawlError
+	}
 
 	// Error while scraping
 	c.OnError(func(r *colly.Response, e error) {
-		slog.Errorf("Request URL: %s failed with response: %s", r.Request.URL, r.StatusCode)
+		slog.Errorf("Request URL: %v failed with response: %v", r.Request.URL, r.StatusCode)
+		crawlError = e
 	})
+	if crawlError != nil {
+		return []models.Listing{}, crawlError
+	}
 
 	// Scraping the listings
 	detailCollector.OnHTML("article[id=viewad-product]", func(e *colly.HTMLElement) {
@@ -91,12 +102,14 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) []mod
 	// Visiting and waiting
 	if err := c.Visit(url); err != nil {
 		slog.Errorf("Error while visiting the url: %s", err)
+		crawlError = err
+		return []models.Listing{}, crawlError
 	}
 	c.Wait()
 
 	time.Sleep(10 * time.Second)
 	slog.Infof("Successfully scraped %d listings from %s", len(listings), url)
-	return listings
+	return listings, nil
 }
 
 // GetDetailsEbay scrapes the details of a listing from the ebay-kleinanzeigen website
