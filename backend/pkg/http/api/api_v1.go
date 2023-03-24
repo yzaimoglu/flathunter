@@ -1,3 +1,4 @@
+// Package api is for the API routes for v1 of the REST API
 package api
 
 import "github.com/gofiber/fiber/v2"

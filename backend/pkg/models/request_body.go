@@ -1,11 +1,13 @@
 package models
 
+// CreateUser is the struct to create a user
 type CreateUser struct {
 	ArangoModel
 	Email    string `json:"email,omitempty"`
 	Password string `json:"password,omitempty"`
 }
 
+// CreateURL is the struct to create a URL
 type CreateURL struct {
 	ArangoModel
 	Platform    string `json:"platform,omitempty"`
@@ -14,6 +16,7 @@ type CreateURL struct {
 	LastCrawled int64  `json:"last_crawled,omitempty"`
 }
 
+// CreateListing is the struct to create a Listing
 type CreateListing struct {
 	ArangoModel
 	URL          string   `json:"url,omitempty"`
