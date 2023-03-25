@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/yzaimoglu/flathunter/pkg/models"
 	"github.com/yzaimoglu/flathunter/pkg/services"
@@ -58,6 +60,22 @@ func GetUserURL(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(url)
 }
 
+// DeleteUserUrl deletes a url of a user
+func DeleteUserUrl(c *fiber.Ctx) error {
+	urlId := c.Params("urlId")
+	err := services.DeleteUserURL(urlId)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "user url has been deleted",
+	})
+
+}
+
 // InsertUserURL inserts a new url for a user
 func InsertUserURL(c *fiber.Ctx) error {
 	var createUserURL models.CreateUserURLRequest
@@ -66,6 +84,9 @@ func InsertUserURL(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
+	createUserURL.LastCrawled = time.Now().Unix()
+	createUserURL.CreatedAt = time.Now().Unix()
+
 	insertedId, err := services.InsertUserURL(createUserURL)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

@@ -78,20 +78,20 @@ func GetURL(id string) (models.URL, error) {
 }
 
 // InsertURL inserts a new url into the database.
-func InsertURL(createURL models.CreateURLRequest) (interface{}, error) {
+func InsertURL(createURL models.CreateURLRequest) (string, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
 	collection, err := arango.Database.Collection(arango.Ctx, "urls")
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	meta, err := collection.CreateDocument(arango.Ctx, createURL)
 	if err != nil {
 		slog.Errorf("Failed to create document: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	slog.Infof("Inserted url with key %s into the database.", meta.Key)
@@ -187,7 +187,8 @@ func GetUserURL(userId string, urlId string) (models.UserURL, error) {
 	return url, nil
 }
 
-func DeleteUserURL(userid string, urlId string) error {
+// DeleteUserURL deletes a single url.
+func DeleteUserURL(urlId string) error {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
@@ -203,19 +204,70 @@ func DeleteUserURL(userid string, urlId string) error {
 		return err
 	}
 
-	slog.Infof("Removed url with key %s from the database.", urlId)
+	slog.Infof("Removed user url with key %s from the database.", urlId)
 	return nil
 }
 
-// InsertUserURL inserts a user url into the database.
-func InsertUserURL(createURL models.CreateUserURLRequest) (interface{}, error) {
+// URLExists checks if a url exists.
+func URLExists(url string) (models.URL, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
+	var urlObj models.URL
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR url IN urls FILTER url.url == @url FOR platform IN platforms FILTER url.platform == platform.name RETURN merge(url, {platform: platform})",
+		map[string]interface{}{"url": url})
+	if err != nil {
+		slog.Error(err)
+		return models.URL{}, config.ErrURLNotFound
+	}
+	defer result.Close()
+
+	_, err = result.ReadDocument(arango.Ctx, &urlObj)
+	if driver.IsNoMoreDocuments(err) {
+		return models.URL{}, config.ErrURLNotFound
+	} else if err != nil {
+		slog.Errorf("Failed to read document: %v", err)
+		return models.URL{}, config.ErrFailedToReadDocument
+	}
+
+	return urlObj, nil
+}
+
+// InsertUserURL inserts a user url into the database.
+func InsertUserURL(createURLRequest models.CreateUserURLRequest) (interface{}, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	urlObj, err := URLExists(createURLRequest.URL)
+	if err != nil && err == config.ErrURLNotFound {
+		urlId, err := InsertURL(models.CreateURLRequest{
+			URL:         createURLRequest.URL,
+			Platform:    createURLRequest.Platform,
+			LastCrawled: createURLRequest.LastCrawled,
+			CreatedAt:   createURLRequest.CreatedAt,
+		})
+		if err != nil {
+			slog.Errorf("Failed to insert url: %v", err)
+			return nil, err
+		}
+		createURLRequest.URL = urlId
+	} else {
+		createURLRequest.URL = urlObj.Key
+	}
+
+	// Create the user url.
 	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserURLsCollection)
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
 		return nil, err
+	}
+
+	// Create object to create
+	createURL := models.CreateUserURL{
+		User: createURLRequest.User,
+		URL:  createURLRequest.URL,
 	}
 
 	meta, err := collection.CreateDocument(arango.Ctx, createURL)

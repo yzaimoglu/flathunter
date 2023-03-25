@@ -13,5 +13,5 @@ func urlsRoutes(router fiber.Router) {
 	userURLs.Get("/get/:userId", controllers.GetUserURLs)
 	userURLs.Get("/get/:userId/:urlId", controllers.GetUserURL)
 	userURLs.Post("/insert", controllers.InsertUserURL)
-	//userURLs.Delete("/delete", controllers.DeleteUserURL)
+	userURLs.Delete("/delete/:urlId", controllers.DeleteUserUrl)
 }
