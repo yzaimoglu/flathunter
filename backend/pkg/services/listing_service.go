@@ -8,7 +8,7 @@ import (
 )
 
 // InsertListing inserts a listing into the database.
-func InsertListing(createListing models.CreateListingRequest) (interface{}, error) {
+func InsertListing(createListing models.CreateListing) (interface{}, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
@@ -65,6 +65,84 @@ func ListingExists(listing models.Listing) bool {
 	query := "FOR listing IN listings FILTER listing.url == @url RETURN listing"
 	bindVars := map[string]interface{}{
 		"url": listing.URL,
+	}
+
+	cursor, err := arango.Database.Query(arango.Ctx, query, bindVars)
+	if err != nil {
+		slog.Errorf("Failed to query database: %v", err)
+		return false
+	}
+	defer cursor.Close()
+
+	_, err = cursor.ReadDocument(arango.Ctx, &result)
+	if driver.IsNoMoreDocuments(err) {
+		return false
+	} else if err != nil {
+		slog.Errorf("Failed to read document: %v", err)
+		return false
+	}
+
+	return true
+}
+
+// InsertUserListing inserts a user listing into the database.
+func InsertUserListing(createListing models.CreateUserListing) (interface{}, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserListingsCollection)
+	if err != nil {
+		slog.Errorf("Failed to retrieve collection: %v", err)
+		return nil, err
+	}
+
+	meta, err := collection.CreateDocument(arango.Ctx, createListing)
+	if err != nil {
+		slog.Errorf("Failed to create document: %v", err)
+		return nil, err
+	}
+
+	slog.Infof("Inserted user listing with key %s into the database.", meta.Key)
+	return meta.Key, nil
+}
+
+// InsertListings inserts multiple listings into the database.
+func InsertUserListings(listings []models.UserListing) error {
+	insertedNumber := 0
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserListingsCollection)
+	if err != nil {
+		slog.Errorf("Failed to retrieve collection: %v", err)
+		return err
+	}
+
+	for _, listing := range listings {
+		if !UserListingExists(listing) {
+			_, err = collection.CreateDocument(arango.Ctx, listing)
+			if err != nil {
+				slog.Errorf("Failed to create document: %v", err)
+				return err
+			}
+			insertedNumber++
+		}
+	}
+
+	slog.Infof("Inserted %d listings into the database.", insertedNumber)
+	return nil
+}
+
+// UserListingExists checks if a user listing already exists in the database.
+func UserListingExists(listing models.UserListing) bool {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var result models.Listing
+
+	query := "FOR listing IN user_listings FILTER listing.listing.url == @url RETURN listing"
+	bindVars := map[string]interface{}{
+		"url": listing.Listing.URL,
 	}
 
 	cursor, err := arango.Database.Query(arango.Ctx, query, bindVars)

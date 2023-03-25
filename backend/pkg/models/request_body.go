@@ -40,6 +40,9 @@ type CreateListingRequest struct {
 	CreatedAt    int64    `json:"created_at,omitempty"`
 }
 
+type CreateUserListingRequest struct {
+}
+
 // LoginUser is the struct to login a user
 type LoginUserRequest struct {
 	Email    string `json:"email"`

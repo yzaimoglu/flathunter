@@ -151,3 +151,28 @@ func InsertUser(createUser models.CreateUserRequest) (interface{}, error) {
 	slog.Infof("Inserted user with key %s into the database.", meta.Key)
 	return meta.Key, nil
 }
+
+// ChangePassword changes the password of a user.
+func ChangePassword(id string, oldPassword string, newPassword string) (models.User, error) {
+	user, err := GetUserByID(id)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	if !utils.CheckPassword(user.HashedPassword, oldPassword) {
+		return models.User{}, config.ErrInvalidPassword
+	}
+
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	// Update the User
+	user.HashedPassword = utils.HashPassword(newPassword)
+
+	// Update the user in the database.
+	arango.Database.Query(arango.Ctx,
+		"UPDATE {_key: @key, hashed_password: @hashed_password} IN users",
+		map[string]interface{}{"key": id, "hashed_password": user.HashedPassword})
+
+	return user, nil
+}

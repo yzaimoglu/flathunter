@@ -10,10 +10,10 @@
 <br />
 <div align="center">
   <a href="https://github.com/yzaimoglu/flathunter">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" width=50%>
   </a>
 
-<h3 align="center">Flathunter</h3>
+  <p><br></p>
 
   <p align="center">
     The only program you'll need to find a flat in Germany as a student.
