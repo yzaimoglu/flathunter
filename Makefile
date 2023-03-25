@@ -78,3 +78,8 @@ docker-client:
 
 docker-frontend:
 	docker build -t flathunter-frontend:$(FRONTEND_VERSION) frontend -f Dockerfile.frontend
+
+git-push-main:
+	git push -u origin main
+	git push -u local main
+	git push -u codeberg main
