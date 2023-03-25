@@ -21,7 +21,7 @@
     <a href="https://github.com/yzaimoglu/flathunter"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/yzaimoglu/flathunter">View Demo</a>
+    <a href="https://github.com/yzaimoglu/flathunter">Cloud Version</a>
     ·
     <a href="https://github.com/yzaimoglu/flathunter/issues">Report Bug</a>
     ·
