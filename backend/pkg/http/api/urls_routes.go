@@ -6,7 +6,12 @@ import (
 )
 
 func urlsRoutes(router fiber.Router) {
-	listing := router.Group("/urls")
-	listing.Get("/get", controllers.GetURLs)
-	listing.Get("/get/:id", controllers.GetURL)
+	url := router.Group("/urls")
+	url.Get("/get/:id", controllers.GetURL)
+
+	userURLs := router.Group("/user_urls")
+	userURLs.Get("/get/:userId", controllers.GetUserURLs)
+	userURLs.Get("/get/:userId/:urlId", controllers.GetUserURL)
+	userURLs.Post("/insert", controllers.InsertUserURL)
+	//userURLs.Delete("/delete", controllers.DeleteUserURL)
 }

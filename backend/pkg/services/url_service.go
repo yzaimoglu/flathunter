@@ -123,36 +123,92 @@ func UpdateURL(field string, value interface{}, key string) error {
 // USER URLS SECTION
 //
 
-// TODO: GetUserURL retrieves a single url.
-func GetUserURL(userId string, urlId string) (models.URL, error) {
+// GetUserURL retrieves a single url.
+func GetUserURLs(userId string) ([]models.UserURL, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
-	var url models.URL
+	var urls []models.UserURL
 
 	result, err := arango.Database.Query(arango.Ctx,
-		"FOR url IN user_urls FILTER url._key == @urlId FOR platform in platforms FILTER url.platform == platform.name RETURN merge(url, {platform: platform})",
-		map[string]interface{}{"urlId": urlId})
+		"FOR user_url IN user_urls FILTER user_url.user == @userId FOR user IN users FILTER user._key == @userId FOR role IN roles FILTER user.role == role._key FOR url IN urls FILTER user_url.url == url._key FOR platform IN platforms FILTER url.platform == platform.name RETURN merge(user_url, {user: merge(user, {role: role})}, {url: merge(url, {platform: platform})})",
+		map[string]interface{}{"userId": userId})
 	if err != nil {
 		slog.Error(err)
-		return models.URL{}, config.ErrURLNotFound
+		return []models.UserURL{}, config.ErrURLNotFound
+	}
+	defer result.Close()
+
+	for {
+		var url models.UserURL
+		_, err := result.ReadDocument(arango.Ctx, &url)
+		if driver.IsNoMoreDocuments(err) {
+			break
+		} else if err != nil {
+			slog.Errorf("Failed to read document: %v", err)
+			return []models.UserURL{}, config.ErrURLsNotFound
+		}
+		urls = append(urls, url)
+	}
+
+	if len(urls) == 0 {
+		return []models.UserURL{}, config.ErrURLsNotFound
+	}
+
+	slog.Infof("Retrieved urls of user %s from the database.", userId)
+	return urls, nil
+}
+
+// GetUserURL retrieves a single url.
+func GetUserURL(userId string, urlId string) (models.UserURL, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var url models.UserURL
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR user_url IN user_urls FILTER user_url.user == @userId && user_url._key == @urlId FOR user IN users FILTER user._key == @userId FOR role IN roles FILTER user.role == role._key FOR url IN urls FILTER user_url.url == url._key FOR platform IN platforms FILTER url.platform == platform.name RETURN merge(user_url, {user: merge(user, {role: role})}, {url: merge(url, {platform: platform})})",
+		map[string]interface{}{"urlId": urlId, "userId": userId})
+	if err != nil {
+		slog.Error(err)
+		return models.UserURL{}, config.ErrURLNotFound
 	}
 	defer result.Close()
 
 	_, err = result.ReadDocument(arango.Ctx, &url)
 	if driver.IsNoMoreDocuments(err) {
-		return models.URL{}, config.ErrURLNotFound
+		return models.UserURL{}, config.ErrURLNotFound
 	} else if err != nil {
 		slog.Errorf("Failed to read document: %v", err)
-		return models.URL{}, config.ErrURLNotFound
+		return models.UserURL{}, config.ErrURLNotFound
 	}
 
 	slog.Infof("Retrieved the url with id %s of user %s from the database.", urlId, userId)
 	return url, nil
 }
 
-// TODO: InsertUserURL inserts a user url into the database.
-func InsertUserURL(createURL models.CreateUserURL) (interface{}, error) {
+func DeleteUserURL(userid string, urlId string) error {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserURLsCollection)
+	if err != nil {
+		slog.Errorf("Failed to retrieve collection: %v", err)
+		return err
+	}
+
+	_, err = collection.RemoveDocument(arango.Ctx, urlId)
+	if err != nil {
+		slog.Errorf("Failed to remove document: %v", err)
+		return err
+	}
+
+	slog.Infof("Removed url with key %s from the database.", urlId)
+	return nil
+}
+
+// InsertUserURL inserts a user url into the database.
+func InsertUserURL(createURL models.CreateUserURLRequest) (interface{}, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
@@ -193,12 +249,7 @@ func UpdateUserURL(field string, value interface{}, key string) error {
 	return nil
 }
 
-// TODO: SetLastCrawledURL updates the last_crawled field of a url.
+// SetLastCrawledURL updates the last_crawled field of a url.
 func SetLastCrawledURL(key string) error {
 	return UpdateURL("last_crawled", time.Now().Unix(), key)
-}
-
-// TODO: SetLastCrawledURL updates the last_crawled field of a url.
-func SetLastCrawledUserURL(key string) error {
-	return UpdateUserURL("last_crawled", time.Now().Unix(), key)
 }

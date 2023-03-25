@@ -17,6 +17,13 @@ type CreateURLRequest struct {
 	LastCrawled int64  `json:"last_crawled,omitempty"`
 }
 
+// CreateUserURLRequest is the struct to create a URL
+type CreateUserURLRequest struct {
+	ArangoModel
+	User string `json:"user,omitempty"`
+	URL  string `json:"url,omitempty"`
+}
+
 // CreateListing is the struct to create a Listing
 type CreateListingRequest struct {
 	ArangoModel

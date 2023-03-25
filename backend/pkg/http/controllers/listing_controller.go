@@ -5,27 +5,16 @@ import (
 	"github.com/yzaimoglu/flathunter/pkg/services"
 )
 
-// GetURLs retrieves all the urls
-func GetURLs(c *fiber.Ctx) error {
-	urls, err := services.GetURLs()
+// GetUserListing retrieves a user listing of a user
+func GetUserListing(c *fiber.Ctx) error {
+	userId := c.Params("userId")
+	listingId := c.Params("listingId")
+	listing, err := services.GetUserListing(userId, listingId)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(urls)
-}
-
-// GetURL retrieves a single url by id
-func GetURL(c *fiber.Ctx) error {
-	id := c.Params("id")
-	url, err := services.GetURL(id)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(url)
+	return c.Status(fiber.StatusOK).JSON(listing)
 }
