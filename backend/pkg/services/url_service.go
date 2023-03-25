@@ -74,7 +74,7 @@ func GetURL(id string) (models.URL, error) {
 }
 
 // InsertURL inserts a new url into the database.
-func InsertURL(createURL models.CreateURL) (interface{}, error) {
+func InsertURL(createURL models.CreateURLRequest) (interface{}, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 

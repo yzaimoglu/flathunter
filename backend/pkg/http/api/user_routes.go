@@ -8,8 +8,9 @@ import (
 
 // userRoutes retrieves all the user routes
 func userRoutes(router fiber.Router) {
-	user := router.Group("/users")
-	user.Get("/get/:id", controllers.GetUser)
-	user.Get("/get", controllers.GetUsers)
-	user.Get("/insert", controllers.InsertUser)
+	user := router.Group("/")
+	user.Get("/user/get_id/:id", controllers.GetUserByID)
+	user.Get("/user/get_email/:email", controllers.GetUserByEmail)
+	user.Get("/users/get", controllers.GetUsers)
+	user.Post("/user/register", controllers.RegisterUser)
 }

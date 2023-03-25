@@ -9,4 +9,5 @@ func APIv1(server *fiber.App) {
 	userRoutes(v1)
 	listingRoutes(v1)
 	urlsRoutes(v1)
+	authRoutes(v1)
 }

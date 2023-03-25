@@ -8,7 +8,7 @@ import (
 )
 
 // InsertListing inserts a listing into the database.
-func InsertListing(createListing models.CreateListing) (interface{}, error) {
+func InsertListing(createListing models.CreateListingRequest) (interface{}, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 

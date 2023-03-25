@@ -1,14 +1,15 @@
 package models
 
 // CreateUser is the struct to create a user
-type CreateUser struct {
+type CreateUserRequest struct {
 	ArangoModel
-	Email    string `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+	Email          string `json:"email,omitempty"`
+	Password       string `json:"password,omitempty"`
+	PasswordRepeat string `json:"password_repeat,omitempty"`
 }
 
 // CreateURL is the struct to create a URL
-type CreateURL struct {
+type CreateURLRequest struct {
 	ArangoModel
 	Platform    string `json:"platform,omitempty"`
 	URL         string `json:"url,omitempty"`
@@ -17,7 +18,7 @@ type CreateURL struct {
 }
 
 // CreateListing is the struct to create a Listing
-type CreateListing struct {
+type CreateListingRequest struct {
 	ArangoModel
 	URL          string   `json:"url,omitempty"`
 	Images       []string `json:"images,omitempty"`
@@ -37,4 +38,10 @@ type CreateListing struct {
 	HeatingCosts string   `json:"heating_costs,omitempty"`
 	Availability string   `json:"availability,omitempty"`
 	CreatedAt    int64    `json:"created_at,omitempty"`
+}
+
+// LoginUser is the struct to login a user
+type LoginUserRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

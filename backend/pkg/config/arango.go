@@ -4,11 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/arangodb/go-driver"
 	"github.com/arangodb/go-driver/http"
 	"github.com/gookit/slog"
+	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
 const (
@@ -21,6 +23,7 @@ const (
 	ArangoListingsCollection     = "listings"
 	ArangoUserListingsCollection = "user_listings"
 	ArangoUserURLsCollection     = "user_urls"
+	ArangoUserSessionsCollection = "user_sessions"
 )
 
 // ArangoConnection is a struct that holds the connection information for the ArangoDB database.
@@ -93,6 +96,7 @@ func SetupArango() {
 	}
 
 	arango.CheckCollectionsAndCreate()
+	arango.CreateStartRoles()
 	slog.Info("Setup of the ArangoDB database complete.")
 }
 
@@ -119,26 +123,52 @@ func (arango *ArangoClient) CheckDatabase() bool {
 
 // CheckCollectionsAndCreate checks if the collections exist and creates them if they do not.
 func (arango *ArangoClient) CheckCollectionsAndCreate() {
-	if !arango.CheckCollection(ArangoUsersCollection) {
-		arango.CreateCollection(ArangoUsersCollection)
+	collections := []string{ArangoUsersCollection,
+		ArangoPlatformsCollection,
+		ArangoRolesCollection,
+		ArangoURLsCollection,
+		ArangoListingsCollection,
+		ArangoUserListingsCollection,
+		ArangoUserURLsCollection,
+		ArangoUserSessionsCollection}
+	for _, collection := range collections {
+		if !arango.CheckCollection(collection) {
+			arango.CreateCollection(collection)
+		}
 	}
-	if !arango.CheckCollection(ArangoPlatformsCollection) {
-		arango.CreateCollection(ArangoPlatformsCollection)
-	}
-	if !arango.CheckCollection(ArangoRolesCollection) {
-		arango.CreateCollection(ArangoRolesCollection)
-	}
-	if !arango.CheckCollection(ArangoURLsCollection) {
-		arango.CreateCollection(ArangoURLsCollection)
-	}
-	if !arango.CheckCollection(ArangoListingsCollection) {
-		arango.CreateCollection(ArangoListingsCollection)
-	}
-	if !arango.CheckCollection(ArangoUserListingsCollection) {
-		arango.CreateCollection(ArangoUserListingsCollection)
-	}
-	if !arango.CheckCollection(ArangoUserURLsCollection) {
-		arango.CreateCollection(ArangoUserURLsCollection)
+}
+
+// CreateStartRoles creates the start roles if they do not exist.
+func (arango *ArangoClient) CreateStartRoles() {
+	roles := []string{"admin", "user"}
+	for _, role := range roles {
+		collection, err := arango.Database.Collection(arango.Ctx, ArangoRolesCollection)
+		if err != nil {
+			slog.Fatalf("Failed to get collection %s: %v", ArangoRolesCollection, err)
+		}
+		exists, err := collection.DocumentExists(arango.Ctx, role)
+		if err != nil {
+			slog.Fatalf("Failed to check if document exists: %v", err)
+		}
+
+		if !exists {
+			collection, err := arango.Database.Collection(arango.Ctx, ArangoRolesCollection)
+			if err != nil {
+				slog.Fatalf("Failed to get collection %s: %v", ArangoRolesCollection, err)
+			}
+
+			_, err = collection.CreateDocument(arango.Ctx, models.Role{
+				ArangoModel: models.ArangoModel{
+					Key: role,
+				},
+				Name:        strings.Title(role),
+				Permissions: 999,
+			})
+
+			if err != nil {
+				slog.Fatalf("Failed to create document: %v", err)
+			}
+		}
 	}
 }
 

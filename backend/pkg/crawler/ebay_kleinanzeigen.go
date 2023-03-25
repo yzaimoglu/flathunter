@@ -8,6 +8,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gookit/slog"
+	"github.com/yzaimoglu/flathunter/pkg/config"
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
@@ -32,7 +33,9 @@ func StartEbayCrawl(url string, ua *models.UserAgent, proxy *models.Proxy) ([]mo
 	c.SetRequestTimeout(120 * time.Second)
 
 	// Setting proxy
-	c.SetProxy(ProxyString(proxy))
+	if config.GetBoolean("ALTERNATING_PROXY") {
+		c.SetProxy(ProxyString(proxy))
+	}
 
 	// Cloning the colly collector for the detailCollector
 	detailCollector := c.Clone()
