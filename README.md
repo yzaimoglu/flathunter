@@ -97,30 +97,30 @@ Getting started with Flathunter is very easy. Make sure to have the prerequisite
 
 ### Prerequisites
 **If you want to deploy using the provided Dockerfiles or the Docker Compose file you only need:**
-* Make  
-  *MacOS:* ```xcode-select --install```  
-  *Linux distros:* should be preinstalled  
-  *More Info:* [gnu.org](https://www.gnu.org/software/make/)  
-* Docker & Docker Compose  
-  *More Info:* [docs.docker.com](https://docs.docker.com/get-docker/)  
+* Make
+  *MacOS:* ```xcode-select --install```
+  *Linux distros:* should be preinstalled
+  *More Info:* [gnu.org](https://www.gnu.org/software/make/)
+* Docker & Docker Compose
+  *More Info:* [docs.docker.com](https://docs.docker.com/get-docker/)
 
 **If you want to run Flathunter on bare-metal, you'll need:**
-* Make  
-  *MacOS:* ```xcode-select --install```  
-  *Linux distros:* should be preinstalled   
-  *More Info:* [gnu.org](https://www.gnu.org/software/make/)  
-* Node (Tested and functional on v16.15.0)  
-  *MacOS:* ```brew install node@16```  
-  *Debian based Linux distros:* ```apt-get install node```  
-  *More Info:* [nodejs.org](https://nodejs.org)  
-* npm (Tested and functional on v8.5.5)  
+* Make
+  *MacOS:* ```xcode-select --install```
+  *Linux distros:* should be preinstalled
+  *More Info:* [gnu.org](https://www.gnu.org/software/make/)
+* Node (Tested and functional on v16.15.0)
+  *MacOS:* ```brew install node@16```
+  *Debian based Linux distros:* ```apt-get install node```
+  *More Info:* [nodejs.org](https://nodejs.org)
+* npm (Tested and functional on v8.5.5)
   ```sh
-  npm install npm@latest -g 
-  ```  
-* Go (Tested and functional on v1.20.2)  
-  *MacOS:* ```brew install go```  
-  *Debian based Linux distros:* ```apt-get install go```  
-  *More Info:* [go.dev](https://go.dev/dl/)  
+  npm install npm@latest -g
+  ```
+* Go (Tested and functional on v1.20.2)
+  *MacOS:* ```brew install go```
+  *Debian based Linux distros:* ```apt-get install go```
+  *More Info:* [go.dev](https://go.dev/dl/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -185,7 +185,7 @@ _For more examples, please refer to the [Documentation](https://github.com/yzaim
     - [ ] REST API
 - [ ] Client
     - [x] Ebay-Kleinanzeigen
-    - [ ] WG-Gesucht
+    - [x] WG-Gesucht
     - [ ] Immobilienscout24
     - [ ] immowelt
 - [ ] Frontend
@@ -225,8 +225,8 @@ Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Yagizalp Zaimoglu - [@yzaimoglu](https://yagizalp.dev) - yagizalp@mitocho.io  
-Reza Jaber - [@rezajaber](https://rezajaber.dev) - reza@mitocho.io  
+Yagizalp Zaimoglu - [@yzaimoglu](https://yagizalp.dev) - yagizalp@mitocho.io
+Reza Jaber - [@rezajaber](https://rezajaber.dev) - reza@mitocho.io
 
 Project Link: [https://github.com/yzaimoglu/flathunter](https://github.com/yzaimoglu/flathunter)
 
