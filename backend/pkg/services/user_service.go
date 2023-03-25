@@ -176,3 +176,34 @@ func ChangePassword(id string, oldPassword string, newPassword string) (models.U
 
 	return user, nil
 }
+
+// GetUsersByURL retrieves the users with a specific url from the database.
+func GetUsersByURL(url string) ([]models.UserWithKeyAndEmail, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var users []models.UserWithKeyAndEmail
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR user_url IN user_urls FOR url IN urls FILTER url._key == user_url.url && url.url == @url FOR user IN users FILTER user._key == user_url.user RETURN {key: user._key, email: user.email}",
+		map[string]interface{}{"url": url})
+	if err != nil {
+		slog.Errorf("Failed to retrieve users with url %s: %v", url, err)
+		return []models.UserWithKeyAndEmail{}, config.ErrUserNotFound
+	}
+
+	for {
+		var user models.UserWithKeyAndEmail
+		_, err := result.ReadDocument(arango.Ctx, &user)
+		if driver.IsNoMoreDocuments(err) {
+			break
+		} else if err != nil {
+			slog.Errorf("Failed to read document: %v", err)
+			return []models.UserWithKeyAndEmail{}, config.ErrUserNotFound
+		}
+		users = append(users, user)
+	}
+
+	slog.Infof("Retrieved %d users with key and email from the database.", len(users))
+	return users, nil
+}

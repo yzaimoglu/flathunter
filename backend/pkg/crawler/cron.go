@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"github.com/gookit/slog"
+	"github.com/yzaimoglu/flathunter/pkg/models"
 	"github.com/yzaimoglu/flathunter/pkg/services"
 )
 
@@ -24,7 +25,31 @@ func (crawler Crawler) RunMinuteCron() {
 			}
 			services.SetLastCrawledURL(temp.Key)
 			crawler.WorkerPool.Submit(func() {
-				services.InsertListings(listings)
+				listingIds, err := services.InsertListings(listings, temp)
+				if err != nil {
+					slog.Errorf("Error while inserting listings: %s", err.Error())
+					return
+				}
+				users, err := services.GetUsersByURL(temp.URL)
+				if err != nil {
+					slog.Errorf("Error while getting users: %s", err.Error())
+					return
+				}
+				for _, user := range users {
+					for _, listingId := range listingIds {
+						crawler.WorkerPool.Submit(func() {
+							_, err := services.InsertUserListing(models.CreateUserListing{
+								User:     user.Key,
+								Listing:  listingId,
+								Notified: false,
+							})
+							if err != nil {
+								slog.Errorf("Error while inserting user listing: %s", err.Error())
+								return
+							}
+						})
+					}
+				}
 			})
 		})
 	}

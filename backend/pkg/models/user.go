@@ -30,3 +30,8 @@ type Role struct {
 	Name        string `json:"name,omitempty"`
 	Permissions int    `json:"permissions,omitempty"`
 }
+
+type UserWithKeyAndEmail struct {
+	Email string `json:"email,omitempty"`
+	Key   string `json:"key,omitempty"`
+}

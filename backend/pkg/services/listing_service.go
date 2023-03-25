@@ -8,7 +8,7 @@ import (
 )
 
 // InsertListing inserts a listing into the database.
-func InsertListing(createListing models.CreateListing) (interface{}, error) {
+func InsertListing(createListing models.Listing, url models.URL) (interface{}, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
@@ -24,35 +24,36 @@ func InsertListing(createListing models.CreateListing) (interface{}, error) {
 		return nil, err
 	}
 
-	slog.Infof("Inserted url with key %s into the database.", meta.Key)
+	slog.Infof("Inserted listing with key %s into the database.", meta.Key)
 	return meta.Key, nil
 }
 
 // InsertListings inserts multiple listings into the database.
-func InsertListings(listings []models.Listing) error {
-	insertedNumber := 0
+func InsertListings(listings []models.Listing, url models.URL) ([]string, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
+
+	var insertedListings []string
 
 	collection, err := arango.Database.Collection(arango.Ctx, "listings")
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
-		return err
+		return []string{}, err
 	}
 
 	for _, listing := range listings {
 		if !ListingExists(listing) {
-			_, err = collection.CreateDocument(arango.Ctx, listing)
+			insertedId, err := collection.CreateDocument(arango.Ctx, listing)
 			if err != nil {
 				slog.Errorf("Failed to create document: %v", err)
-				return err
+				return []string{}, err
 			}
-			insertedNumber++
+			insertedListings = append(insertedListings, insertedId.Key)
 		}
 	}
 
-	slog.Infof("Inserted %d listings into the database.", insertedNumber)
-	return nil
+	slog.Infof("Inserted %d listings into the database.", len(insertedListings))
+	return insertedListings, nil
 }
 
 // ListingExists checks if a listing already exists in the database.
@@ -184,21 +185,14 @@ func InsertUserListings(listings []models.UserListing) error {
 	}
 
 	for _, listing := range listings {
-		if !UserListingExists(listing.User.ID, listing.Listing.URL) {
-			_, err = collection.CreateDocument(arango.Ctx, listing)
-			if err != nil {
-				slog.Errorf("Failed to create document: %v", err)
-				return err
-			}
-			insertedNumber++
+		_, err = collection.CreateDocument(arango.Ctx, listing)
+		if err != nil {
+			slog.Errorf("Failed to create document: %v", err)
+			return err
 		}
+		insertedNumber++
 	}
 
 	slog.Infof("Inserted %d listings into the database.", insertedNumber)
 	return nil
-}
-
-// UserListingExists checks if a user listing already exists in the database.
-func UserListingExists(userId string, listingUrl string) bool {
-	return false
 }
