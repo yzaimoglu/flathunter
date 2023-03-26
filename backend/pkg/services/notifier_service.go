@@ -15,7 +15,7 @@ func GetNotifiers(userId string) ([]models.Notifier, error) {
 	var notifiers []models.Notifier
 
 	result, err := arango.Database.Query(arango.Ctx,
-		"FOR notifier IN user_notifiers FILTER notifier.user == @id FOR user IN users FILTER user._key == notifier.user RETURN merge(notifier, {user: user})",
+		"FOR notifier IN user_notifiers FILTER notifier.user == @id FOR user IN users FILTER user._key == notifier.user FOR role IN roles FILTER role._key == user.role RETURN merge(notifier, {user: merge(user, {role: role})})",
 		map[string]interface{}{"id": userId})
 	if err != nil {
 		slog.Error(err)
@@ -28,8 +28,9 @@ func GetNotifiers(userId string) ([]models.Notifier, error) {
 		_, err := result.ReadDocument(arango.Ctx, &notifier)
 		if driver.IsNoMoreDocuments(err) {
 			break
-		} else {
+		} else if err != nil {
 			slog.Errorf("Failed to read document: %v", err)
+			return nil, err
 		}
 		notifiers = append(notifiers, notifier)
 	}
@@ -49,7 +50,7 @@ func GetNotifier(userId string, listingId string) (models.Notifier, error) {
 	var notifier models.Notifier
 
 	result, err := arango.Database.Query(arango.Ctx,
-		"FOR notifier IN user_notifiers FILTER notifier.user == @userId && notifier._key == @listingId FOR user IN users FILTER user._key == notifier.user RETURN merge(notifier, {user: user})",
+		"FOR notifier IN user_notifiers FILTER notifier.user == @userId && notifier._key == @listingId FOR user IN users FILTER user._key == notifier.user FOR role IN roles FILTER role._key == user.role RETURN merge(notifier, {user: merge(user, {role: role})})",
 		map[string]interface{}{"userId": userId, "listingId": listingId})
 	if err != nil {
 		slog.Error(err)
@@ -73,7 +74,8 @@ func InsertNotifier(createNotifier models.CreateNotifier) (string, error) {
 
 	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserNotifiersCollection)
 	if err != nil {
-		slog.Fatalf("Failed to get collection %s: %v", config.ArangoUserNotifiersCollection, err)
+		slog.Errorf("Failed to get collection %s: %v", config.ArangoUserNotifiersCollection, err)
+		return "", err
 	}
 
 	meta, err := collection.CreateDocument(arango.Ctx, models.CreateNotifier{
@@ -82,7 +84,8 @@ func InsertNotifier(createNotifier models.CreateNotifier) (string, error) {
 		Options: createNotifier.Options,
 	})
 	if err != nil {
-		slog.Fatalf("Failed to create document: %v", err)
+		slog.Errorf("Failed to create document: %v", err)
+		return "", err
 	}
 
 	return meta.Key, nil
@@ -95,12 +98,14 @@ func DeleteNotifier(userId string, notifierId string) error {
 
 	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserNotifiersCollection)
 	if err != nil {
-		slog.Fatalf("Failed to get collection %s: %v", config.ArangoUserNotifiersCollection, err)
+		slog.Errorf("Failed to get collection %s: %v", config.ArangoUserNotifiersCollection, err)
+		return err
 	}
 
 	_, err = collection.RemoveDocument(arango.Ctx, notifierId)
 	if err != nil {
-		slog.Fatalf("Failed to remove document: %v", err)
+		slog.Errorf("Failed to remove document: %v", err)
+		return err
 	}
 
 	return nil
