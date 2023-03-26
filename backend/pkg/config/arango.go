@@ -97,6 +97,7 @@ func SetupArango() {
 
 	arango.CheckCollectionsAndCreate()
 	arango.CreateStartRoles()
+	arango.CreateStartPlatforms()
 	slog.Info("Setup of the ArangoDB database complete.")
 }
 
@@ -170,6 +171,46 @@ func (arango *ArangoClient) CreateStartRoles() {
 			}
 		}
 	}
+}
+
+// PlatformExists checks if a platform exists.
+func (arango *ArangoClient) PlatformExists(name string) bool {
+	result, err := arango.Database.Query(arango.Ctx, "FOR platform IN platforms FILTER platform.name == @name RETURN platform", map[string]interface{}{"name": name})
+	if err != nil {
+		slog.Fatalf("Failed to query database: %v", err)
+	}
+	defer result.Close()
+
+	var platform models.Platform
+	if _, err := result.ReadDocument(arango.Ctx, &platform); err != nil {
+		return false
+	}
+	return true
+}
+
+// CreateStartPlatform creates the start platform if it does not exist.
+func (arango *ArangoClient) CreateStartPlatform(name string, readable_name string) {
+	collection, err := arango.Database.Collection(arango.Ctx, ArangoPlatformsCollection)
+	if err != nil {
+		slog.Fatalf("Failed to get collection %s: %v", ArangoPlatformsCollection, err)
+	}
+	if !arango.PlatformExists(name) {
+		_, err = collection.CreateDocument(arango.Ctx, models.Platform{
+			Name:         name,
+			ReadableName: readable_name,
+		})
+
+		if err != nil {
+			slog.Fatalf("Failed to create document: %v", err)
+		}
+		slog.Infof("Created platform %s", readable_name)
+	}
+}
+
+// CreateStartPlatforms creates the start platforms if they do not exist.
+func (arango *ArangoClient) CreateStartPlatforms() {
+	arango.CreateStartPlatform("ebay_kleinanzeigen", "Ebay Kleinanzeigen")
+	arango.CreateStartPlatform("wg_gesucht", "WG-Gesucht")
 }
 
 // CheckCollection checks if a collection exists.
