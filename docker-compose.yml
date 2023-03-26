@@ -1,22 +1,11 @@
 version: '3.7'
 
 services:
-  mongodb:
-    image: mongo:latest
-    env_file: backend/.env
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - 27017:27017
-    networks:
-      - backend_net
-    volumes:
-      - mongodb:/data/db
   arangodb:
     image: arangodb:latest
     env_file: backend/.env
     environment:
+      ARANGO_USERNAME: ${DB_USERNAME}
       ARANGO_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
       - 8529:8529
