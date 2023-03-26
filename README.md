@@ -226,16 +226,23 @@ Copyright (c) 2009,2014 Google Inc. All rights reserved.
 * golang.org/x/crypto (BSD-3-Clause)
 Copyright (c) 2009 The Go Authors. All rights reserved.
 * github.com/arangodb/go-driver (Apache License 2.0)
-Copyright 2017 ArangoDB GmbH
+Copyright (c) 2017 ArangoDB GmbH
 * github.com/gocolly/colly (Apache License 2.0)
-Copyright 2018 gocolly
+Copyright (c) 2018 gocolly
 * github.com/alitto/pond (MIT License)
+Copyright (c) 2020 Alejandro Durante
 * github.com/go-co-op/gocron (MIT License)
+Copyright (c) 2014, 辣椒面
 * github.com/gofiber/fiber (MIT License)
+Copyright (c) 2019-present Fenny and Contributors
 * github.com/gofiber/helmet (MIT License)
+Copyright (c) 2020 Fiber
 * github.com/gookit/slog (MIT License)
+Copyright (c) 2016 inhere
 * github.com/joho/godotenv (MIT License)
+Copyright (c) 2013 John Barton
 * nuxt.com (MIT License)
+Copyright (c) 2016-2023 Nuxt
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
