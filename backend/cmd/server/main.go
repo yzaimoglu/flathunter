@@ -4,8 +4,11 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gofiber/helmet/v2"
 	"github.com/gookit/slog"
 	"github.com/yzaimoglu/flathunter/pkg/config"
@@ -41,6 +44,11 @@ func main() {
 	server.Use(favicon.New(favicon.Config{
 		File: "./assets/favicon.ico",
 		URL:  "/favicon.ico",
+	}))
+	server.Use(recover.New())
+	server.Use(cors.New(cors.Config{
+		AllowOrigins:     utils.ToString("FRONTEND_URL"),
+		AllowCredentials: true,
 	}))
 
 	api.APIv1(server)
