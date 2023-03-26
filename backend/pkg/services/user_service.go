@@ -44,6 +44,7 @@ func GetUsers(page int) ([]models.User, error) {
 		return []models.User{}, config.ErrUserNotFound
 	}
 
+	utils.UsersToSafe(&users)
 	slog.Infof("Retrieved %d users from the database.", len(users))
 	return users, nil
 }
@@ -70,6 +71,7 @@ func GetUserByID(id string) (models.User, error) {
 		return models.User{}, config.ErrUserNotFound
 	}
 
+	utils.UserToSafe(&user)
 	slog.Infof("Retrieved user with key %s from the database.", user.Key)
 	return user, nil
 }
@@ -96,6 +98,7 @@ func GetUserByEmail(email string) (models.User, error) {
 		return models.User{}, config.ErrUserNotFound
 	}
 
+	utils.UserToSafe(&user)
 	slog.Infof("Retrieved user with key %s from the database.", user.Key)
 	return user, nil
 }
@@ -128,19 +131,20 @@ func GetUserSessions(userID string) ([]models.SessionToken, error) {
 		sessions = append(sessions, session)
 	}
 
+	utils.SessionsToSafe(&sessions)
 	slog.Infof("Retrieved %d sessions from the database for user %s.", len(sessions), userID)
 	return sessions, nil
 }
 
 // InsertUser inserts a new user into the database.
-func InsertUser(createUser models.CreateUserRequest) (interface{}, error) {
+func InsertUser(createUser models.CreateUserRequest) (string, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
 	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUsersCollection)
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	// Create a new user.
@@ -153,7 +157,7 @@ func InsertUser(createUser models.CreateUserRequest) (interface{}, error) {
 	meta, err := collection.CreateDocument(arango.Ctx, user)
 	if err != nil {
 		slog.Errorf("Failed to create document: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	slog.Infof("Inserted user with key %s into the database.", meta.Key)
@@ -182,6 +186,7 @@ func ChangePassword(changePasswordRequest models.ChangePasswordRequest) (models.
 		"UPDATE {_key: @key, hashed_password: @hashed_password} IN users",
 		map[string]interface{}{"key": changePasswordRequest.User, "hashed_password": user.HashedPassword})
 
+	utils.UserToSafe(&user)
 	return user, nil
 }
 

@@ -48,6 +48,7 @@ func LoginUser(loginUser models.LoginUserRequest) (models.SessionToken, error) {
 		return models.SessionToken{}, err
 	}
 
+	utils.SessionToSafe(&sessionToken)
 	slog.Infof("User %s logged in.", user.Email)
 	return sessionToken, nil
 }
@@ -99,11 +100,11 @@ func LogoutUser(sessionToken string) error {
 }
 
 // GetSessionByToken retrieves the session from the database.
-func GetSessionByToken(sessionToken string) (interface{}, error) {
+func GetSessionByToken(sessionToken string) (models.SessionToken, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
-	var sessionObject interface{}
+	var sessionObject models.SessionToken
 
 	result, err := arango.Database.Query(arango.Ctx,
 		"FOR s IN user_sessions FILTER s.session_token == @token FOR u in users FILTER u._key == s.user RETURN s",
@@ -120,15 +121,16 @@ func GetSessionByToken(sessionToken string) (interface{}, error) {
 		return models.SessionToken{}, config.ErrSessionNotFound
 	}
 
+	utils.SessionToSafe(&sessionObject)
 	return sessionObject, nil
 }
 
-// GetSessionByToken retrieves the session from the database.
-func GetSessionWithUserByToken(sessionToken string) (interface{}, error) {
+// GetSessionWithUserByToken retrieves the session with the user from the database.
+func GetSessionWithUserByToken(sessionToken string) (models.SessionToken, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
-	var sessionObject interface{}
+	var sessionObject models.SessionToken
 
 	result, err := arango.Database.Query(arango.Ctx,
 		"FOR s IN user_sessions FILTER s.session_token == @token FOR u in users FILTER u._key == s.user FOR r in roles FILTER r._key == u.role RETURN merge(s, {user: merge(u, {role: r})})",
@@ -145,5 +147,6 @@ func GetSessionWithUserByToken(sessionToken string) (interface{}, error) {
 		return models.SessionToken{}, config.ErrSessionNotFound
 	}
 
+	utils.SessionToSafe(&sessionObject)
 	return sessionObject, nil
 }

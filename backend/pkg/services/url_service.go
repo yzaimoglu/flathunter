@@ -7,6 +7,7 @@ import (
 	"github.com/gookit/slog"
 	"github.com/yzaimoglu/flathunter/pkg/config"
 	"github.com/yzaimoglu/flathunter/pkg/models"
+	"github.com/yzaimoglu/flathunter/pkg/utils"
 )
 
 //
@@ -119,6 +120,33 @@ func UpdateURL(field string, value interface{}, key string) error {
 	return nil
 }
 
+// URLExists checks if a url exists.
+func URLExists(url string) (models.URL, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var urlObj models.URL
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR url IN urls FILTER url.url == @url FOR platform IN platforms FILTER url.platform == platform.name RETURN merge(url, {platform: platform})",
+		map[string]interface{}{"url": url})
+	if err != nil {
+		slog.Error(err)
+		return models.URL{}, config.ErrURLNotFound
+	}
+	defer result.Close()
+
+	_, err = result.ReadDocument(arango.Ctx, &urlObj)
+	if driver.IsNoMoreDocuments(err) {
+		return models.URL{}, config.ErrURLNotFound
+	} else if err != nil {
+		slog.Errorf("Failed to read document: %v", err)
+		return models.URL{}, config.ErrFailedToReadDocument
+	}
+
+	return urlObj, nil
+}
+
 //
 // USER URLS SECTION
 //
@@ -155,6 +183,7 @@ func GetUserURLs(userId string) ([]models.UserURL, error) {
 		return []models.UserURL{}, config.ErrURLsNotFound
 	}
 
+	utils.UserURLsToSafe(&urls)
 	slog.Infof("Retrieved urls of user %s from the database.", userId)
 	return urls, nil
 }
@@ -183,6 +212,7 @@ func GetUserURL(userId string, urlId string) (models.UserURL, error) {
 		return models.UserURL{}, config.ErrURLNotFound
 	}
 
+	utils.UserURLToSafe(&url)
 	slog.Infof("Retrieved the url with id %s of user %s from the database.", urlId, userId)
 	return url, nil
 }
@@ -208,35 +238,8 @@ func DeleteUserURL(urlId string) error {
 	return nil
 }
 
-// URLExists checks if a url exists.
-func URLExists(url string) (models.URL, error) {
-	arango := config.NewArangoClient()
-	defer arango.Close()
-
-	var urlObj models.URL
-
-	result, err := arango.Database.Query(arango.Ctx,
-		"FOR url IN urls FILTER url.url == @url FOR platform IN platforms FILTER url.platform == platform.name RETURN merge(url, {platform: platform})",
-		map[string]interface{}{"url": url})
-	if err != nil {
-		slog.Error(err)
-		return models.URL{}, config.ErrURLNotFound
-	}
-	defer result.Close()
-
-	_, err = result.ReadDocument(arango.Ctx, &urlObj)
-	if driver.IsNoMoreDocuments(err) {
-		return models.URL{}, config.ErrURLNotFound
-	} else if err != nil {
-		slog.Errorf("Failed to read document: %v", err)
-		return models.URL{}, config.ErrFailedToReadDocument
-	}
-
-	return urlObj, nil
-}
-
 // InsertUserURL inserts a user url into the database.
-func InsertUserURL(createURLRequest models.CreateUserURLRequest) (interface{}, error) {
+func InsertUserURL(createURLRequest models.CreateUserURLRequest) (string, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
@@ -250,7 +253,7 @@ func InsertUserURL(createURLRequest models.CreateUserURLRequest) (interface{}, e
 		})
 		if err != nil {
 			slog.Errorf("Failed to insert url: %v", err)
-			return nil, err
+			return "", err
 		}
 		createURLRequest.URL = urlId
 	} else {
@@ -261,7 +264,7 @@ func InsertUserURL(createURLRequest models.CreateUserURLRequest) (interface{}, e
 	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserURLsCollection)
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	// Create object to create
@@ -273,32 +276,11 @@ func InsertUserURL(createURLRequest models.CreateUserURLRequest) (interface{}, e
 	meta, err := collection.CreateDocument(arango.Ctx, createURL)
 	if err != nil {
 		slog.Errorf("Failed to create document: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	slog.Infof("Inserted user url with key %s into the database.", meta.Key)
 	return meta.Key, nil
-}
-
-// TODO: UpdateURL updates a single field of a url.
-func UpdateUserURL(field string, value interface{}, key string) error {
-	arango := config.NewArangoClient()
-	defer arango.Close()
-
-	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserURLsCollection)
-	if err != nil {
-		slog.Errorf("Failed to retrieve collection: %v", err)
-		return err
-	}
-
-	_, err = collection.UpdateDocument(arango.Ctx, key, map[string]interface{}{field: value})
-	if err != nil {
-		slog.Errorf("Failed to update document: %v", err)
-		return err
-	}
-
-	slog.Infof("Updated %s of user url with key %s in the database.", field, key)
-	return nil
 }
 
 // SetLastCrawledURL updates the last_crawled field of a url.

@@ -5,6 +5,7 @@ import (
 	"github.com/gookit/slog"
 	"github.com/yzaimoglu/flathunter/pkg/config"
 	"github.com/yzaimoglu/flathunter/pkg/models"
+	"github.com/yzaimoglu/flathunter/pkg/utils"
 )
 
 // GetListing retrieves a listing from the database.
@@ -72,20 +73,20 @@ func GetListings(page int) ([]models.Listing, error) {
 }
 
 // InsertListing inserts a listing into the database.
-func InsertListing(createListing models.Listing, url models.URL) (interface{}, error) {
+func InsertListing(createListing models.Listing, url models.URL) (string, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
 	collection, err := arango.Database.Collection(arango.Ctx, "listings")
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	meta, err := collection.CreateDocument(arango.Ctx, createListing)
 	if err != nil {
 		slog.Errorf("Failed to create document: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	slog.Infof("Inserted listing with key %s into the database.", meta.Key)
@@ -188,6 +189,7 @@ func GetUserListings(userId string, page int) ([]models.UserListing, error) {
 		return []models.UserListing{}, config.ErrListingNotFound
 	}
 
+	utils.UserListingsToSafe(&userListings)
 	return userListings, nil
 }
 
@@ -219,24 +221,25 @@ func GetUserListing(userId string, listingId string) (models.UserListing, error)
 		return models.UserListing{}, config.ErrURLNotFound
 	}
 
+	utils.UserListingToSafe(&userListing)
 	return userListing, nil
 }
 
 // InsertUserListing inserts a user listing into the database.
-func InsertUserListing(createListing models.CreateUserListing) (interface{}, error) {
+func InsertUserListing(createListing models.CreateUserListing) (string, error) {
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
 	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserListingsCollection)
 	if err != nil {
 		slog.Errorf("Failed to retrieve collection: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	meta, err := collection.CreateDocument(arango.Ctx, createListing)
 	if err != nil {
 		slog.Errorf("Failed to create document: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	slog.Infof("Inserted user listing with key %s into the database.", meta.Key)
