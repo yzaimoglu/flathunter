@@ -15,4 +15,5 @@ var (
 	ErrSessionNotFound      = errors.New("session was not found")
 	ErrFailedToReadDocument = errors.New("failed to read document")
 	ErrListingNotFound      = errors.New("listing was not found")
+	ErrNotifierNotFound     = errors.New("notifier was not found")
 )

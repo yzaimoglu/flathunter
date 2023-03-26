@@ -11,4 +11,5 @@ func APIv1(server *fiber.App) {
 	urlsRoutes(v1)
 	crawlerRoutes(v1)
 	authRoutes(v1)
+	notifierRoutes(v1)
 }

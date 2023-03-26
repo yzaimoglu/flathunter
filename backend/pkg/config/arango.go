@@ -14,16 +14,17 @@ import (
 )
 
 const (
-	ArangoConnectionString       = "http://%s:%d"
-	ArangoConnectionTimeout      = 5
-	ArangoUsersCollection        = "users"
-	ArangoRolesCollection        = "roles"
-	ArangoPlatformsCollection    = "platforms"
-	ArangoURLsCollection         = "urls"
-	ArangoListingsCollection     = "listings"
-	ArangoUserListingsCollection = "user_listings"
-	ArangoUserURLsCollection     = "user_urls"
-	ArangoUserSessionsCollection = "user_sessions"
+	ArangoConnectionString        = "http://%s:%d"
+	ArangoConnectionTimeout       = 5
+	ArangoUsersCollection         = "users"
+	ArangoRolesCollection         = "roles"
+	ArangoPlatformsCollection     = "platforms"
+	ArangoURLsCollection          = "urls"
+	ArangoListingsCollection      = "listings"
+	ArangoUserListingsCollection  = "user_listings"
+	ArangoUserURLsCollection      = "user_urls"
+	ArangoUserSessionsCollection  = "user_sessions"
+	ArangoUserNotifiersCollection = "user_notifiers"
 )
 
 // ArangoConnection is a struct that holds the connection information for the ArangoDB database.
@@ -131,7 +132,8 @@ func (arango *ArangoClient) CheckCollectionsAndCreate() {
 		ArangoListingsCollection,
 		ArangoUserListingsCollection,
 		ArangoUserURLsCollection,
-		ArangoUserSessionsCollection}
+		ArangoUserSessionsCollection,
+		ArangoUserNotifiersCollection}
 	for _, collection := range collections {
 		if !arango.CheckCollection(collection) {
 			arango.CreateCollection(collection)
