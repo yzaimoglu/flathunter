@@ -6,9 +6,9 @@ import (
 	"github.com/yzaimoglu/flathunter/pkg/services"
 )
 
-// RunMinuteCron runs every minute.
+// RunThreeMinuteCron runs every three minutes.
 // It gets the last 50 urls from the database and crawls them.
-func (crawler Crawler) RunMinuteCron() {
+func (crawler Crawler) RunThreeMinuteCron() {
 	urls, err := services.GetURLs()
 	if err != nil {
 		slog.Errorf("Error while getting urls: %s", err.Error())
@@ -53,4 +53,10 @@ func (crawler Crawler) RunMinuteCron() {
 			})
 		})
 	}
+}
+
+// RunFiveMinuteCron runs every five minutes.
+// It gets the unnotified listings from the database and sends notifications.
+func (crawler Crawler) RunFiveMinuteCron() {
+
 }

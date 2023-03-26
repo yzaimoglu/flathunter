@@ -28,8 +28,11 @@ func main() {
 
 	// Setup cron jobs
 	cronScheduler := gocron.NewScheduler(time.Now().Location())
+	cronScheduler.Every(3).Minute().Do(func() {
+		crawlerApp.RunThreeMinuteCron()
+	})
 	cronScheduler.Every(5).Minute().Do(func() {
-		crawlerApp.RunMinuteCron()
+		crawlerApp.RunFiveMinuteCron()
 	})
 
 	cronScheduler.StartAsync()
