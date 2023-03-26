@@ -220,6 +220,23 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
 
+#### Used Software with copryight notices:
+* github.com/google/uuid (BSD-3-Clause)
+Copyright (c) 2009,2014 Google Inc. All rights reserved.
+* golang.org/x/crypto (BSD-3-Clause)
+Copyright (c) 2009 The Go Authors. All rights reserved.
+* github.com/arangodb/go-driver (Apache License 2.0)
+Copyright 2017 ArangoDB GmbH
+* github.com/gocolly/colly (Apache License 2.0)
+Copyright 2018 gocolly
+* github.com/alitto/pond (MIT License)
+* github.com/go-co-op/gocron (MIT License)
+* github.com/gofiber/fiber (MIT License)
+* github.com/gofiber/helmet (MIT License)
+* github.com/gookit/slog (MIT License)
+* github.com/joho/godotenv (MIT License)
+* nuxt.com (MIT License)
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
