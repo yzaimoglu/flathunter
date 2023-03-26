@@ -58,3 +58,10 @@ type LoginUserRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// ChangePasswordRequest is the representation of a request to change a password.
+type ChangePasswordRequest struct {
+	User        string `json:"user,omitempty"`
+	OldPassword string `json:"old_password,omitempty"`
+	NewPassword string `json:"new_password,omitempty"`
+}

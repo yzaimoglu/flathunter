@@ -31,6 +31,7 @@ type Role struct {
 	Permissions int    `json:"permissions,omitempty"`
 }
 
+// UserWithKeyAndEmail is the representation of a User with a key and email inside of Go and in the Database.
 type UserWithKeyAndEmail struct {
 	Email string `json:"email,omitempty"`
 	Key   string `json:"key,omitempty"`

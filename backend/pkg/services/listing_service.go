@@ -7,6 +7,70 @@ import (
 	"github.com/yzaimoglu/flathunter/pkg/models"
 )
 
+// GetListing retrieves a listing from the database.
+func GetListing(listingId string) (models.Listing, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var listing models.Listing
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR listing IN listings FILTER listing._key == @id RETURN listing",
+		map[string]interface{}{"id": listingId})
+	if err != nil {
+		slog.Error(err)
+		return models.Listing{}, config.ErrListingNotFound
+	}
+	defer result.Close()
+
+	_, err = result.ReadDocument(arango.Ctx, &listing)
+	if err != nil {
+		slog.Errorf("Failed to read document: %v", err)
+		return models.Listing{}, config.ErrListingNotFound
+	}
+
+	slog.Infof("Retrieved listing with key %s from the database.", listingId)
+	return listing, nil
+}
+
+// GetListings retrieves the listings from the database.
+func GetListings(page int) ([]models.Listing, error) {
+	amount := 25
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var listings []models.Listing
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR listing IN listings SORT listing.created_at DESC LIMIT @offset, @limit RETURN listing",
+		map[string]interface{}{"offset": (page - 1) * amount, "limit": amount})
+	if err != nil {
+		slog.Error(err)
+		return []models.Listing{}, config.ErrListingNotFound
+	}
+
+	defer result.Close()
+
+	for {
+		var listing models.Listing
+		_, err := result.ReadDocument(arango.Ctx, &listing)
+		if driver.IsNoMoreDocuments(err) {
+			break
+		} else if err != nil {
+			slog.Errorf("Failed to read document: %v", err)
+			return []models.Listing{}, config.ErrListingNotFound
+		}
+		listings = append(listings, listing)
+	}
+
+	if len(listings) == 0 {
+		return []models.Listing{}, config.ErrListingNotFound
+	}
+
+	slog.Infof("Retrieved %d listings from the database.", len(listings))
+	return listings, nil
+}
+
 // InsertListing inserts a listing into the database.
 func InsertListing(createListing models.Listing, url models.URL) (interface{}, error) {
 	arango := config.NewArangoClient()
@@ -87,15 +151,18 @@ func ListingExists(listing models.Listing) bool {
 }
 
 // GetUserListings gets a user listing from the database.
-func GetUserListings(userId string) ([]models.UserListing, error) {
+func GetUserListings(userId string, page int) ([]models.UserListing, error) {
+	amount := 25
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
 	var userListings []models.UserListing
 
-	query := "FOR user_listing IN user_listings FILTER user_listing.user == @userId RETURN listing"
+	query := "FOR user_listing IN user_listings FILTER user_listing.user == @userId FOR user IN users FILTER user._key == user_listing.user FOR listing IN listings FILTER listing._key == user_listing.listing FOR role IN roles FILTER role._key == user.role LIMIT @offset, @limit RETURN merge(user_listing, {user: merge(user, {role: role})}, {listing: listing})"
 	bindVars := map[string]interface{}{
 		"userId": userId,
+		"limit":  amount,
+		"offset": (page - 1) * amount,
 	}
 
 	result, err := arango.Database.Query(arango.Ctx, query, bindVars)
@@ -117,6 +184,10 @@ func GetUserListings(userId string) ([]models.UserListing, error) {
 		userListings = append(userListings, listing)
 	}
 
+	if len(userListings) == 0 {
+		return []models.UserListing{}, config.ErrListingNotFound
+	}
+
 	return userListings, nil
 }
 
@@ -127,7 +198,7 @@ func GetUserListing(userId string, listingId string) (models.UserListing, error)
 
 	var userListing models.UserListing
 
-	query := "FOR user_listing IN user_listings FILTER user_listing.user == @userId && user_listing._key == @listingId RETURN listing"
+	query := "FOR user_listing IN user_listings FILTER user_listing.user == @userId && user_listing._key == @listingId FOR user IN users FILTER user._key == user_listing.user FOR listing IN listings FILTER listing._key == user_listing.listing FOR role IN roles FILTER role._key == user.role RETURN merge(user_listing, {user: merge(user, {role: role})}, {listing: listing})"
 	bindVars := map[string]interface{}{
 		"userId":    userId,
 		"listingId": listingId,
@@ -194,5 +265,26 @@ func InsertUserListings(listings []models.UserListing) error {
 	}
 
 	slog.Infof("Inserted %d listings into the database.", insertedNumber)
+	return nil
+}
+
+// DeleteUserListing deletes a user listing from the database.
+func DeleteUserListing(listingId string) error {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	collection, err := arango.Database.Collection(arango.Ctx, config.ArangoUserListingsCollection)
+	if err != nil {
+		slog.Errorf("Failed to retrieve collection: %v", err)
+		return err
+	}
+
+	_, err = collection.RemoveDocument(arango.Ctx, listingId)
+	if err != nil {
+		slog.Errorf("Failed to remove document: %v", err)
+		return err
+	}
+
+	slog.Infof("Removed user listing with key %s from the database.", listingId)
 	return nil
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +11,12 @@ import (
 
 // GetUsers retrieves all the users
 func GetUsers(c *fiber.Ctx) error {
-	users, err := services.GetUsers()
+	page := c.Query("page")
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		pageInt = 1
+	}
+	users, err := services.GetUsers(pageInt)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -136,4 +142,25 @@ func UserSession(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(sessionToken)
+}
+
+// ChangePassword changes the password
+func ChangePassword(c *fiber.Ctx) error {
+	var changePasswordRequest models.ChangePasswordRequest
+	if err := c.BodyParser(&changePasswordRequest); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	_, err := services.ChangePassword(changePasswordRequest)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Password changed successfully",
+	})
 }

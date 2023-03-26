@@ -9,15 +9,19 @@ import (
 )
 
 // GetUsers retrieves the users from the database.
-func GetUsers() ([]models.User, error) {
+func GetUsers(page int) ([]models.User, error) {
+	amount := 25
 	arango := config.NewArangoClient()
 	defer arango.Close()
 
 	var users []models.User
 
 	result, err := arango.Database.Query(arango.Ctx,
-		"FOR u IN users FOR r in roles FILTER u.role == r._key RETURN merge(u, {role: r})",
-		map[string]interface{}{})
+		"FOR u IN users FOR r in roles FILTER u.role == r._key LIMIT @offset, @limit RETURN merge(u, {role: r})",
+		map[string]interface{}{
+			"limit":  amount,
+			"offset": (page - 1) * amount,
+		})
 	if err != nil {
 		slog.Error(err)
 		return []models.User{}, config.ErrUserNotFound
@@ -34,6 +38,10 @@ func GetUsers() ([]models.User, error) {
 			return []models.User{}, config.ErrUserNotFound
 		}
 		users = append(users, user)
+	}
+
+	if len(users) == 0 {
+		return []models.User{}, config.ErrUserNotFound
 	}
 
 	slog.Infof("Retrieved %d users from the database.", len(users))
@@ -153,13 +161,13 @@ func InsertUser(createUser models.CreateUserRequest) (interface{}, error) {
 }
 
 // ChangePassword changes the password of a user.
-func ChangePassword(id string, oldPassword string, newPassword string) (models.User, error) {
-	user, err := GetUserByID(id)
+func ChangePassword(changePasswordRequest models.ChangePasswordRequest) (models.User, error) {
+	user, err := GetUserByID(changePasswordRequest.User)
 	if err != nil {
 		return models.User{}, err
 	}
 
-	if !utils.CheckPassword(user.HashedPassword, oldPassword) {
+	if !utils.CheckPassword(user.HashedPassword, changePasswordRequest.OldPassword) {
 		return models.User{}, config.ErrInvalidPassword
 	}
 
@@ -167,12 +175,12 @@ func ChangePassword(id string, oldPassword string, newPassword string) (models.U
 	defer arango.Close()
 
 	// Update the User
-	user.HashedPassword = utils.HashPassword(newPassword)
+	user.HashedPassword = utils.HashPassword(changePasswordRequest.NewPassword)
 
 	// Update the user in the database.
 	arango.Database.Query(arango.Ctx,
 		"UPDATE {_key: @key, hashed_password: @hashed_password} IN users",
-		map[string]interface{}{"key": id, "hashed_password": user.HashedPassword})
+		map[string]interface{}{"key": changePasswordRequest.User, "hashed_password": user.HashedPassword})
 
 	return user, nil
 }

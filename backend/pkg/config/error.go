@@ -14,4 +14,5 @@ var (
 	ErrSessionCreation      = errors.New("session could not be created")
 	ErrSessionNotFound      = errors.New("session was not found")
 	ErrFailedToReadDocument = errors.New("failed to read document")
+	ErrListingNotFound      = errors.New("listing was not found")
 )
