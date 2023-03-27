@@ -54,7 +54,7 @@ func main() {
 
 	go func() {
 		if err := server.Listen(":" + config.GetString("SERVER_PORT")); err != nil {
-			slog.Fatalf("Error starting server: %v", err)
+			slog.Errorf("Error starting server: %v", err)
 		}
 	}()
 
