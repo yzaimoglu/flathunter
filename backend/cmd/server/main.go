@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,11 +19,6 @@ func main() {
 		config.SetupLogger()
 		config.SetupArango()
 	}
-
-	fmt.Println(config.GetString("SERVER_PORT"))
-	fmt.Println(config.GetString("DB_USER"))
-	fmt.Println(config.GetString("DB_HOST"))
-	fmt.Println(config.GetString("DB_DATABASE"))
 
 	server := fiber.New(
 		fiber.Config{
