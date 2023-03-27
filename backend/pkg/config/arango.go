@@ -89,12 +89,48 @@ func NewArangoClient() *ArangoClient {
 // SetupArango creates the database if it does not exist.
 func SetupArango() {
 	slog.Info("Setting up the ArangoDB database...")
+	arangoConnection := ArangoConnection{
+		Host:     GetString("DB_HOST"),
+		Port:     GetInteger("DB_PORT"),
+		Database: GetString("DB_DATABASE"),
+		Username: GetString("DB_USER"),
+		Password: GetString("DB_PASSWORD"),
+	}
+
+	connectionURI := fmt.Sprintf(ArangoConnectionString, arangoConnection.Host, arangoConnection.Port)
+
+	conn, err := http.NewConnection(http.ConnectionConfig{
+		Endpoints: []string{connectionURI},
+		TLSConfig: &tls.Config{InsecureSkipVerify: true},
+		ConnLimit: 100,
+	})
+	if err != nil {
+		slog.Fatalf("Failed to create connection: %v", err)
+	}
+
+	client, err := driver.NewClient(driver.ClientConfig{
+		Connection:     conn,
+		Authentication: driver.BasicAuthentication(arangoConnection.Username, arangoConnection.Password),
+	})
+	if err != nil {
+		slog.Fatalf("Failed to create client: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), ArangoConnectionTimeout*time.Second)
+
+	arangoClient := &ArangoClient{
+		Client:     client,
+		Ctx:        ctx,
+		Cancel:     cancel,
+		Connection: arangoConnection,
+	}
+
+	if !arangoClient.CheckDatabase() {
+		arangoClient.CreateDatabase()
+	}
+
 	arango := NewArangoClient()
 	defer arango.Cancel()
-
-	if !arango.CheckDatabase() {
-		arango.CreateDatabase()
-	}
 
 	arango.CheckCollectionsAndCreate()
 	arango.CreateStartRoles()
