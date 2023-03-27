@@ -13,6 +13,7 @@ func Load() {
 	err := godotenv.Load()
 	if err != nil {
 		slog.Errorf("Error loading .env file: %v", err)
+		slog.Errorf("Using default environment variables instead.")
 	}
 }
 

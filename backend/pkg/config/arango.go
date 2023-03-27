@@ -86,9 +86,8 @@ func NewArangoClient() *ArangoClient {
 	return arangoClient.GetDatabase()
 }
 
-// SetupArango creates the database if it does not exist.
-func SetupArango() {
-	slog.Info("Setting up the ArangoDB database...")
+// NewArangoClientWithoutDatabase creates a new ArangoDB client without a database.
+func NewArangoClientWithoutDatabase() *ArangoClient {
 	arangoConnection := ArangoConnection{
 		Host:     GetString("DB_HOST"),
 		Port:     GetInteger("DB_PORT"),
@@ -124,9 +123,16 @@ func SetupArango() {
 		Cancel:     cancel,
 		Connection: arangoConnection,
 	}
+	return arangoClient
+}
 
-	if !arangoClient.CheckDatabase() {
-		arangoClient.CreateDatabase()
+// SetupArango creates the database if it does not exist.
+func SetupArango() {
+	slog.Info("Setting up the ArangoDB database...")
+
+	arangoWithoutDB := NewArangoClientWithoutDatabase()
+	if !arangoWithoutDB.CheckDatabase() {
+		arangoWithoutDB.CreateDatabase()
 	}
 
 	arango := NewArangoClient()
