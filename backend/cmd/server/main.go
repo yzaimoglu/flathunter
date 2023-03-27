@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/helmet/v2"
@@ -39,10 +38,6 @@ func main() {
 		TimeFormat: "02.01.2006T15:04:05",
 		TimeZone:   "Europe/Berlin",
 		Output:     file,
-	}))
-	server.Use(favicon.New(favicon.Config{
-		File: "./assets/favicon.ico",
-		URL:  "/favicon.ico",
 	}))
 	server.Use(recover.New())
 	server.Use(cors.New(cors.Config{
