@@ -57,7 +57,7 @@ func main() {
 	}, models.Notifier{
 		Type: "discord",
 		Options: map[string]interface{}{
-			"webhook": "https://discord.com/api/webhooks/1089690725488267395/pvnYvdZWU0FJUL9Ye9l0K7mekA4Bw8-Yi2yDh-0WFEuJlJ_kiybzKORhNIMWEe1yjyFk",
+			"webhook": "https://discord.com/api/webhooks/1089699359928619059/M5QGqIAy0WJzNZA089GvWtI3h_7Za9ysKXAF4_X8b5aO8qlgth3a1u3IFUXq0aV1vx1O",
 		},
 	})
 }

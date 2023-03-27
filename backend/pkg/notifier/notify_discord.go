@@ -48,4 +48,15 @@ func NotifyDiscord(listing models.UserListing, notifier models.Notifier) {
 	if err != nil {
 		slog.Errorf("Error while sending notification to Discord: %s", err)
 	}
+
+	// defer res.Body.Close()
+	// responseBody, err := ioutil.ReadAll(res.Body)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Println(res.Status)
+	// fmt.Println(string(responseBody))
+
+	slog.Infof("Sent Discord notification for listing %s and user %s", listing.Listing.URL, listing.User.Key)
 }
