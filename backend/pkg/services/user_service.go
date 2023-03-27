@@ -103,6 +103,32 @@ func GetUserByEmail(email string) (models.User, error) {
 	return user, nil
 }
 
+// GetUser retrieves a user from the database.
+func GetUserByEmailWithPassword(email string) (models.User, error) {
+	arango := config.NewArangoClient()
+	defer arango.Close()
+
+	var user models.User
+
+	result, err := arango.Database.Query(arango.Ctx,
+		"FOR u IN users FILTER u.email == @email FOR r in roles FILTER u.role == r._key RETURN merge(u, {role: r})",
+		map[string]interface{}{"email": email})
+	if err != nil {
+		slog.Error(err)
+		return models.User{}, config.ErrUserNotFound
+	}
+	defer result.Close()
+
+	_, err = result.ReadDocument(arango.Ctx, &user)
+	if driver.IsNoMoreDocuments(err) || err != nil {
+		slog.Errorf("Failed to read document: %v", err)
+		return models.User{}, config.ErrUserNotFound
+	}
+
+	slog.Infof("Retrieved user with key %s from the database.", user.Key)
+	return user, nil
+}
+
 // GetUserSessions retrieves the user sessions from the database.
 func GetUserSessions(userID string) ([]models.SessionToken, error) {
 	arango := config.NewArangoClient()

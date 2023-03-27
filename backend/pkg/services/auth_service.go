@@ -14,7 +14,7 @@ func LoginUser(loginUser models.LoginUserRequest) (models.SessionToken, error) {
 	defer arango.Close()
 
 	// Check if the user exists and get the user
-	user, err := GetUserByEmail(loginUser.Email)
+	user, err := GetUserByEmailWithPassword(loginUser.Email)
 	if err != nil {
 		return models.SessionToken{}, config.ErrInvalidEmail
 	}
