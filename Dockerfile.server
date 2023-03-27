@@ -8,6 +8,25 @@ RUN cd backend && go build -o ../flathunter-server ./cmd/server
 
 # Run stage
 FROM alpine
+ARG SERVER_PORT = 50000
+ENV SERVER_PORT = ${SERVER_PORT}
+ARG FRONTEND_URL = http://localhost:3000
+ENV FRONTEND_URL = ${FRONTEND_URL}
+ARG DB_USER = root
+ENV DB_USER = ${DB_USER}
+ARG DB_PASSWORD = root
+ENV DB_PASSWORD = ${DB_PASSWORD}
+ARG DB_HOST = localhost
+ENV DB_HOST = ${DB_HOST}
+ARG DB_PORT = 8529
+ENV DB_PORT = ${DB_PORT}
+ARG DB_DATABASE = flathunter
+ENV DB_DATABASE = ${DB_DATABASE}
+ARG TOKEN = token
+ENV TOKEN = ${TOKEN}
+ARG ALTERNATING_PROXY = true
+ENV ALTERNATING_PROXY = ${ALTERNATING_PROXY}
+
 WORKDIR /app
 COPY --from=builder /app/flathunter-server .
 
