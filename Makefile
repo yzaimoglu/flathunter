@@ -71,7 +71,7 @@ docker-build:
 	make docker-frontend
 
 docker-server:
-	docker build -t flathunter-server:$(BACKEND_VERSION) backend -f Dockerfile.server
+	docker build --progress=plain -t flathunter-server:$(BACKEND_VERSION) backend -f Dockerfile.server
 
 docker-client:
 	docker build -t flathunter-client:$(BACKEND_VERSION) backend -f Dockerfile.client
