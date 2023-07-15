@@ -16,6 +16,8 @@
   <p><br></p>
 
   <p align="center">
+    WORK IN PROGRESS
+    <br />
     The only program you'll need to find a flat in Germany as a student.
     <br />
     <a href="https://github.com/yzaimoglu/flathunter"><strong>Explore the docs »</strong></a>
